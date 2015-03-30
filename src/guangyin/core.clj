@@ -95,10 +95,8 @@
    (if (string? x)
        (Duration/parse x)
        (Duration/from x)))
-  ([a b]
-   (if (integer? a)
-       (Duration/of a b)
-       (Duration/between a b))))
+  ([start-inclusive end-exclusive]
+   (Duration/between start-inclusive end-exclusive)))
 
 (defn period
   ([x]
@@ -153,11 +151,17 @@
      string? (OffsetTime/parse x)
      keyword? (offset-time-keywords x)
      :else (OffsetTime/from x)))
-  ([a b]
-   (pred-cond a
-     local-time? (OffsetTime/of a (zone-offset b))
-     instant? (OffsetTime/ofInstant a (zone-id b))
-     :else (OffsetTime/parse a b)))
+  ([time-or-instant-or-text offset-or-zone-or-formatter]
+   (pred-cond time-or-instant-or-text
+     local-time? (OffsetTime/of
+                   time-or-instant-or-text
+                   (zone-offset offset-or-zone-or-formatter))
+     instant? (OffsetTime/ofInstant
+                time-or-instant-or-text
+                (zone-id offset-or-zone-or-formatter))
+     :else (OffsetTime/parse
+             time-or-instant-or-text
+             offset-or-zone-or-formatter)))
   ([hour minute second nano-of-second offset]
    (OffsetTime/of hour minute second nano-of-second offset)))
 
@@ -172,17 +176,24 @@
      string? (LocalDateTime/parse x)
      keyword? (local-date-time-keywords x)
      :else (LocalDateTime/from x)))
-  ([a b]
-   (cond
-     (and (local-date? a) (local-time? b)) (LocalDateTime/of a b)
-     (instant? a) (LocalDateTime/ofInstant a (zone-id b))
-     :else (LocalDateTime/parse a b)))
+  ([date-or-instant-or-text time-or-zone-or-formatter]
+   (pred-cond date-or-instant-or-text
+     local-date? (LocalDateTime/of
+                   date-or-instant-or-text
+                   time-or-zone-or-formatter)
+     instant? (LocalDateTime/ofInstant
+                date-or-instant-or-text
+                (zone-id time-or-zone-or-formatter))
+     :else (LocalDateTime/parse
+             date-or-instant-or-text
+             time-or-zone-or-formatter)))
   ([year month day-of-month hour minute]
    (LocalDateTime/of year month day-of-month hour minute))
   ([year month day-of-month hour minute second]
    (LocalDateTime/of year month day-of-month hour minute second))
   ([year month day-of-month hour minute second nano-of-second]
-   (LocalDateTime/of year month day-of-month hour minute second nano-of-second)))
+   (LocalDateTime/of year month day-of-month hour minute second
+                     nano-of-second)))
 
 (defn offset-date-time
   ([]
@@ -195,11 +206,17 @@
      string? (OffsetDateTime/parse x)
      keyword? (offset-date-time-keywords x)
      :else (OffsetDateTime/from x)))
-  ([a b]
-   (pred-cond a
-     local-date-time? (OffsetDateTime/of a (zone-offset b))
-     instant? (OffsetDateTime/ofInstant a (zone-id b))
-     :else (OffsetDateTime/parse a b)))
+  ([date-time-or-instant-or-text offset-or-zone-or-formatter]
+   (pred-cond date-time-or-instant-or-text
+     local-date-time? (OffsetDateTime/of
+                        date-time-or-instant-or-text
+                        (zone-offset offset-or-zone-or-formatter))
+     instant? (OffsetDateTime/ofInstant
+                date-time-or-instant-or-text
+                (zone-id offset-or-zone-or-formatter))
+     :else (OffsetDateTime/parse
+             date-time-or-instant-or-text
+             offset-or-zone-or-formatter)))
   ([date time offset]
    (OffsetDateTime/of date time offset))
   ([year month day-of-month hour minute second nano-of-second offset]
@@ -216,11 +233,17 @@
      zone-id? (ZonedDateTime/now x)
      string? (ZonedDateTime/parse x)
      :else (ZonedDateTime/from x)))
-  ([a b]
-   (pred-cond a
-     local-date-time? (ZonedDateTime/of a (zone-id b))
-     instant? (ZonedDateTime/ofInstant a (zone-id b))
-     :else (ZonedDateTime/parse a b)))
+  ([date-time-or-instant-or-text zone-or-formatter]
+   (pred-cond date-time-or-instant-or-text
+     local-date-time? (ZonedDateTime/of
+                        date-time-or-instant-or-text
+                        (zone-id zone-or-formatter))
+     instant? (ZonedDateTime/ofInstant
+                date-time-or-instant-or-text
+                (zone-id zone-or-formatter))
+     :else (ZonedDateTime/parse
+             date-time-or-instant-or-text
+             zone-or-formatter)))
   ([local-date-time zone preferred-zone]
    (ZonedDateTime/ofLocal local-date-time zone preferred-zone))
   ([year month day-of-month hour minute second nano-of-second zone]
@@ -252,10 +275,10 @@
      zone-id? (YearMonth/now x)
      string? (YearMonth/parse x)
      :else (YearMonth/from x)))
-  ([a b]
-   (if (integer? a)
-       (YearMonth/of a b)
-       (YearMonth/parse a b))))
+  ([year-or-text month-or-formatter]
+   (if (integer? year-or-text)
+       (YearMonth/of year-or-text month-or-formatter)
+       (YearMonth/parse year-or-text month-or-formatter))))
 
 (defn get-field
   [accessor field]
@@ -281,10 +304,10 @@
      zone-id? (MonthDay/now x)
      string? (MonthDay/parse x)
      :else (MonthDay/from x)))
-  ([a b]
-   (if (integer? a)
-       (MonthDay/of a b)
-       (MonthDay/parse a b))))
+  ([month-or-text day-or-formatter]
+   (if (integer? month-or-text)
+       (MonthDay/of month-or-text day-or-formatter)
+       (MonthDay/parse month-or-text day-or-formatter))))
 
 (defn day-of-week
   ([]
@@ -301,10 +324,10 @@
    (Clock/systemDefaultZone))
   ([x]
    (Clock/system (zone-id x)))
-  ([a b]
-   (if (instant? a) 
-       (Clock/fixed a (zone-id b))
-       (Clock/offset a (duration b)))))
+  ([instant-or-clock zone-or-duration]
+   (if (instant? instant-or-clock) 
+       (Clock/fixed instant-or-clock (zone-id zone-or-duration))
+       (Clock/offset instant-or-clock (duration zone-or-duration)))))
 
 (defn date-time-formatter
   ([x]
@@ -312,58 +335,64 @@
      date-time-formatter? x
      string? (DateTimeFormatter/ofPattern x)
      keyword? (date-time-formatter-keywords x)))
-  ([a b]
-   (if (string? a)
-       (DateTimeFormatter/ofPattern a b)
-       (let [f (format-style-keywords b)]
+  ([pattern-or-type locale-or-style]
+   (if (string? pattern-or-type)
+       (DateTimeFormatter/ofPattern pattern-or-type locale-or-style)
+       (let [f (format-style-keywords locale-or-style)]
          (when (nil? f)
-           (throw (IllegalArgumentException. (str "Invalid format style: " b))))
-         (case a
+           (throw (IllegalArgumentException.
+                    (str "Invalid format style: " locale-or-style))))
+         (case pattern-or-type
            :date (DateTimeFormatter/ofLocalizedDate f)
            :time (DateTimeFormatter/ofLocalizedTime f)
-           :date-time (DateTimeFormatter/ofLocalizedDateTime f)))))
-  ([type s1 s2]
-   (let [datef (format-style-keywords s1)
-         timef (format-style-keywords s2)]
+           :date-time (DateTimeFormatter/ofLocalizedDateTime f)
+           (throw (IllegalArgumentException.
+                    (str "Invalid format type: " pattern-or-type)))))))
+  ([type date-style time-style]
+   (let [datef (format-style-keywords date-style)
+         timef (format-style-keywords time-style)]
      (when-not (= type :date-time)
-       (throw (IllegalArgumentException. (str "Invalid format type: " type)))
+       (throw (IllegalArgumentException.
+                (str "Invalid format type: " type)))
      (when (nil? datef)
-       (throw (IllegalArgumentException. (str "Invalid format style: " s1))))
+       (throw (IllegalArgumentException.
+                (str "Invalid format style: " date-style))))
      (when (nil? timef)
-       (throw (IllegalArgumentException. (str "Invalid format style: " s2))))
-     (DateTimeFormatter/ofLocalizedDateTime datef timef)))))
+       (throw (IllegalArgumentException.
+                (str "Invalid format style: " time-style))))
+     (DateTimeFormatter/ofLocalizedDateTime date-style time-style)))))
 
 (defn years
-  [x]
-  (Period/ofYears x))
+  [years]
+  (Period/ofYears years))
 
 (defn months
-  [x]
-  (Period/ofMonths x))
+  [months]
+  (Period/ofMonths months))
 
 (defn weeks
-  [x]
-  (Period/ofWeeks x))
+  [weeks]
+  (Period/ofWeeks weeks))
 
 (defn days
-  [x]
-  (Period/ofDays x))
+  [days]
+  (Period/ofDays days))
 
 (defn hours
-  [x]
-  (Duration/ofHours x))
+  [hours]
+  (Duration/ofHours hours))
 
 (defn minutes
-  [x]
-  (Duration/ofMinutes x))
+  [minutes]
+  (Duration/ofMinutes minutes))
 
 (defn seconds
-  [x]
-  (Duration/ofMinutes x))
+  [seconds]
+  (Duration/ofSeconds seconds))
 
 (defn nanos
-  [x]
-  (Duration/ofNanos x))
+  [nanos]
+  (Duration/ofNanos nanos))
 
 (defn plus
   ([] 0)
