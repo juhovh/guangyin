@@ -4,11 +4,11 @@
             [guangyin.internal.utils :refer :all])
   (:import (java.time Clock Duration Instant LocalDate LocalDateTime LocalTime
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
-                      ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)
-           (java.time.format DateTimeFormatter)))
+                      ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)))
 
 (defn instant?
   "Returns true if the given value is an instant.
+   Examples:
 
     => (instant? (instant))
     true
@@ -21,6 +21,7 @@
    Duration refers to an exact length of time that can be converted accurately
    to seconds without any time zone information, basically any length of time
    that is measured in hours or smaller units than that.
+   Examples:
 
      => (duration? (hours 1))
      true
@@ -33,6 +34,7 @@
    Period refers to a length of time that can not be converted accurately to
    seconds without any time zone information, basically any length of time that
    is measured in days or larger units than that.
+   Examples:
 
      => (period? (weeks 1))
      true
@@ -74,6 +76,7 @@
 
 (defn month?
   "Returns true if the given value is an exact month.
+   Examples:
 
      => (month? (month 5))
      true
@@ -87,6 +90,7 @@
 
 (defn day-of-week?
   "Returns true if the given value is an exact day of week.
+   Examples:
 
      => (day-of-week? (day-of-week :saturday))
      true
@@ -106,14 +110,11 @@
   "Returns true if the given value is a clock instance."
   [x] (instance? Clock x))
 
-(defn date-time-formatter?
-  "Returns true if the given value is a date time formatter."
-  [x] (instance? DateTimeFormatter x))
-
 (defn zone-offset
-  "Coerce value to zone-offset.
+  "Coerce to zone-offset.
    Getting current offset can be found using offset-time, however for current
    zone zone-id should usually be used instead of zone-offset. Examples:
+   Examples:
 
      => (zone-offset \"+02:00\")
      #<ZoneOffset +02:00>
@@ -157,7 +158,7 @@
    (ZoneId/ofOffset prefix offset)))
 
 (defn instant
-  "Coerce value to instant.
+  "Coerce to instant.
    Examples:
 
      => (instant) ; Current instant
@@ -180,17 +181,21 @@
      :else (Instant/from x))))
 
 (defn duration
-  "Coerce value to duration.
+  "Coerce to duration.
    Notice that duration is only for exact times, if you are working with dates
-   you most likely want to use a period instead.
+   you most likely want to use a period instead. Can also be used to create a
+   duration from start and end times. See also functions hours, minutes,
+   seconds and nanos, they all return a duration.
    Examples:
 
      => (duration \"P2D\") ; 2 days is converted to 48 hours
      #<Duration PT48H>
      => (duration \"PT15M\") ; 15 minutes
      #<Duration PT15M>
-     => (duration \"PT-6H+3M\") ; -6 hours and +3 minutes
+     => (duration \"PT-6H3M\") ; -6 hours and +3 minutes
      #<Duration PT-5H-57M>
+     => (duration \"-PT6H3M\") ; -6 hours and -3 minutes
+     #<Duration PT-6H-3M>
      => (duration (instant :epoch) (instant \"2015-01-01T12:15:00.123Z\"))
      #<Duration PT394476H15M0.123S>
      => (duration (local-time :midnight) (local-time :noon))
@@ -203,18 +208,56 @@
    (Duration/between start-inclusive end-exclusive)))
 
 (defn period
+  "Coerce to period.
+   Notice that period is only for days and larger time units. If you want to work
+   with time you should use duration instead. Can also be used to create a period
+   from start and end date. See also functions years, months, weeks and days,
+   they all return a period.
+   Examples:
+
+     => (period \"P2Y\")
+     #<Period P2Y>
+     => (period \"P1Y2M3W4D\")
+     #<Period P1Y2M25D>
+     => (period \"P-1Y2M\")
+     #<Period P-1Y2M>
+     => (period \"-P1Y2M\")
+     #<Period P-1Y-2M>
+     => (period :zero)
+     #<Period P0D>
+     => (period (local-date \"2015-01-01\") (local-date \"2017-04-12\"))
+     #<Period P2Y3M11D>"
   ([x]
    (pred-cond-throw x (str "Invalid period: " x)
      period? x
      string? (Period/parse x)
      keyword? (period-keywords x)
      :else (Period/from x)))
-  ([start end]
-   (Period/between start end))
-  ([years months days]
-   (Period/of years months days)))
+  ([start-date-inclusive end-date-exclusive]
+   (Period/between start-date-inclusive end-date-exclusive)))
 
 (defn local-date
+  "Coerce to local date.
+   Can also be used to parse a local date using a custom formatter, or to create
+   a date from year, month and day of month.
+   Examples:
+
+     => (local-date) ; Current date
+     #<LocalDate 2015-04-01>
+     => (local-date (clock))
+     #<LocalDate 2015-04-01>
+     => (local-date (zone-id \"Asia/Shanghai\")) ; Current date in Shanghai
+     #<LocalDate 2015-04-02>
+     => (local-date \"2015-04-01\")
+     #<LocalDate 2015-04-01>
+     => (local-date :max) ; Largest local date, also :min supported
+     #<LocalDate +999999999-12-31>
+     => (local-date (offset-date-time))
+     #<LocalDate 2015-04-01>
+     => (local-date \"01.04.2015\" (date-time-formatter \"dd.MM.yyyy\"))
+     #<LocalDate 2015-04-01>
+     => (local-date 2015 4 1)
+     #<LocalDate 2015-04-01>"
   ([]
    (LocalDate/now))
   ([x]
@@ -432,39 +475,6 @@
    (if (instant? instant-or-clock) 
        (Clock/fixed instant-or-clock (zone-id zone-or-duration))
        (Clock/offset instant-or-clock (duration zone-or-duration)))))
-
-(defn date-time-formatter
-  ([x]
-   (pred-cond-throw x (str "Invalid format: " x)
-     date-time-formatter? x
-     string? (DateTimeFormatter/ofPattern x)
-     keyword? (date-time-formatter-keywords x)))
-  ([pattern-or-type locale-or-style]
-   (if (string? pattern-or-type)
-       (DateTimeFormatter/ofPattern pattern-or-type locale-or-style)
-       (let [f (format-style-keywords locale-or-style)]
-         (when (nil? f)
-           (throw (IllegalArgumentException.
-                    (str "Invalid format style: " locale-or-style))))
-         (case pattern-or-type
-           :date (DateTimeFormatter/ofLocalizedDate f)
-           :time (DateTimeFormatter/ofLocalizedTime f)
-           :date-time (DateTimeFormatter/ofLocalizedDateTime f)
-           (throw (IllegalArgumentException.
-                    (str "Invalid format type: " pattern-or-type)))))))
-  ([type date-style time-style]
-   (let [datef (format-style-keywords date-style)
-         timef (format-style-keywords time-style)]
-     (when-not (= type :date-time)
-       (throw (IllegalArgumentException.
-                (str "Invalid format type: " type)))
-     (when (nil? datef)
-       (throw (IllegalArgumentException.
-                (str "Invalid format style: " date-style))))
-     (when (nil? timef)
-       (throw (IllegalArgumentException.
-                (str "Invalid format style: " time-style))))
-     (DateTimeFormatter/ofLocalizedDateTime date-style time-style)))))
 
 (defn years
   [years]
