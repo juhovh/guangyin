@@ -10,7 +10,7 @@ the old Chinese name for time, Guangyin.
 ## Disclaimer
 
 This library is very much work in progress. It is not recommended to use it
-in and project before this disclaimer is removed.
+in a project before this disclaimer is removed.
 
 ## License
 
