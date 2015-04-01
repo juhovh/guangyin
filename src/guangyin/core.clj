@@ -1,4 +1,5 @@
 (ns guangyin.core
+  "The core namespace for basic date and time handling."
   (:require [guangyin.internal.fields :refer :all]
             [guangyin.internal.utils :refer :all])
   (:import (java.time Clock Duration Instant LocalDate LocalDateTime LocalTime
@@ -7,60 +8,121 @@
            (java.time.format DateTimeFormatter)))
 
 (defn instant?
+  "Returns true if the given value is an instant.
+
+    => (instant? (instant))
+    true
+    => (instant? (days 1))
+    false"
   [x] (instance? Instant x))
 
 (defn duration?
+  "Returns true if the given value is a duration.
+   Duration refers to an exact length of time that can be converted accurately
+   to seconds without any time zone information, basically any length of time
+   that is measured in hours or smaller units than that.
+
+     => (duration? (hours 1))
+     true
+     => (duration? (days 1))
+     false"
   [x] (instance? Duration x))
 
 (defn period?
+  "Returns true if the given value is a period.
+   Period refers to a length of time that can not be converted accurately to
+   seconds without any time zone information, basically any length of time that
+   is measured in days or larger units than that.
+
+     => (period? (weeks 1))
+     true
+     => (period? (minutes 30))
+     false"
   [x] (instance? Period x))
 
 (defn local-date?
+  "Returns true if the given value is a local date."
   [x] (instance? LocalDate x))
 
 (defn local-time?
+  "Returns true if the given value is a local time."
   [x] (instance? LocalTime x))
 
 (defn offset-time?
+  "Returns true if the given value is a time with a zone offset."
   [x] (instance? OffsetTime x))
 
 (defn local-date-time?
+  "Returns true if the given value is a local date-time."
   [x] (instance? LocalDateTime x))
 
 (defn offset-date-time?
+  "Returns true if the given value is a date-time with a zone offset."
   [x] (instance? OffsetDateTime x))
 
 (defn zoned-date-time?
+  "Returns true if the given value is a date-time with a time zone."
   [x] (instance? ZonedDateTime x))
 
 (defn year?
+  "Returns true if the given value is an exact year."
   [x] (instance? Year x))
 
 (defn year-month?
+  "Returns true if the given value is a combination of year and month."
   [x] (instance? YearMonth x))
 
 (defn month?
+  "Returns true if the given value is an exact month.
+
+     => (month? (month 5))
+     true
+     => (month? (months 2))
+     false"
   [x] (instance? Month x))
 
 (defn month-day?
+  "Returns true if the given value is a combination of month and day of month."
   [x] (instance? MonthDay x))
 
 (defn day-of-week?
+  "Returns true if the given value is an exact day of week.
+
+     => (day-of-week? (day-of-week :saturday))
+     true
+     => (day-of-week? (days 5))
+     false"
   [x] (instance? DayOfWeek x))
 
 (defn zone-id?
+  "Returns true if the given value is a time zone."
   [x] (instance? ZoneId x))
 
 (defn zone-offset?
+  "Returns true if the given value is a zone offset."
   [x] (instance? ZoneOffset x))
 
 (defn clock?
+  "Returns true if the given value is a clock instance."
   [x] (instance? Clock x))
 
 (defn date-time-formatter?
+  "Returns true if the given value is a date time formatter."
   [x] (instance? DateTimeFormatter x))
 
 (defn zone-offset
+  "Coerce value to zone-offset.
+   Getting current offset can be found using offset-time, however for current
+   zone zone-id should usually be used instead of zone-offset. Examples:
+
+     => (zone-offset \"+02:00\")
+     #<ZoneOffset +02:00>
+     => (zone-offset :utc)
+     #<ZoneOffset Z>
+     => (zone-offset (hours -10))
+     #<ZoneOffset -10:00>
+     => (zone-offset (offset-time)) ; Current offset
+     #<ZoneOffset +03:00>"
   ([x]
    (pred-cond-throw x (str "Invalid zone-offset: " x)
      zone-offset? x
@@ -70,6 +132,20 @@
      :else (ZoneOffset/from x))))
 
 (defn zone-id
+  "Create zone-id from values.
+   If created from prefix and offset, the valid prefix values are \"GMT\",
+   \"UTC\", \"UT\" and \"\". This is usually not very useful and should be
+   avoided unless necessary.
+   Examples:
+
+     => (zone-id) ; Current zone
+     #<ZoneRegion Europe/Helsinki>
+     => (zone-id \"America/New_York\")
+     #<ZoneRegion America/New_York>
+     => (zone-id (zoned-date-time)) ; Zone from date-time
+     #<ZoneRegion Europe/Helsinki>
+     => (zone-id \"UTC\" (zone-offset \"+08:00\")) ; For completeness
+     #<ZoneRegion UTC+08:00>"
   ([]
    (ZoneId/systemDefault))
   ([x]
@@ -81,6 +157,19 @@
    (ZoneId/ofOffset prefix offset)))
 
 (defn instant
+  "Coerce value to instant.
+   Examples:
+
+     => (instant) ; Current instant
+     #<Instant 2015-01-01T12:15:00.123Z>
+     => (instant (clock)) ; Current instant from clock
+     #<Instant 2015-01-01T12:15:00.123Z>
+     => (instant \"2015-01-01T12:15:00.123Z\")
+     #<Instant 2015-01-01T12:15:00.123Z>
+     => (instant :epoch)
+     #<Instant 1970-01-01T00:00:00Z>
+     => (instant (offset-date-time)) ; From date-time containing instant
+     #<Instant 2015-01-01T12:15:00.123Z>"
   ([]
    (Instant/now))
   ([x]
@@ -91,6 +180,21 @@
      :else (Instant/from x))))
 
 (defn duration
+  "Coerce value to duration.
+   Notice that duration is only for exact times, if you are working with dates
+   you most likely want to use a period instead.
+   Examples:
+
+     => (duration \"P2D\") ; 2 days is converted to 48 hours
+     #<Duration PT48H>
+     => (duration \"PT15M\") ; 15 minutes
+     #<Duration PT15M>
+     => (duration \"PT-6H+3M\") ; -6 hours and +3 minutes
+     #<Duration PT-5H-57M>
+     => (duration (instant :epoch) (instant \"2015-01-01T12:15:00.123Z\"))
+     #<Duration PT394476H15M0.123S>
+     => (duration (local-time :midnight) (local-time :noon))
+     #<Duration PT12H>"
   ([x]
    (if (string? x)
        (Duration/parse x)

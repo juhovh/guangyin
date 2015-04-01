@@ -6,5 +6,7 @@
             :distribution :repo}
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :min-lein-version "2.0.0"
+  :codox {:include [guangyin.core]}
   :profiles {:dev {:plugins [[codox "0.8.11"]
-                             [lein-cloverage "1.0.2"]]}})
+                             [lein-cloverage "1.0.2"]]
+                   :codox {:include [guangyin.core]}}})
