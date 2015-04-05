@@ -99,11 +99,25 @@
   [x] (instance? DayOfWeek x))
 
 (defn zone-id?
-  "Returns true if the given value is a time zone."
+  "Returns true if the given value is a time zone.
+   Examples:
+
+     => (zone-id? (zone-id \"Europe/Helsinki\"))
+     true
+     => (zone-id? (zone-offset :utc))
+     true
+     => (zone-id? (hours 1))
+     false"
   [x] (instance? ZoneId x))
 
 (defn zone-offset?
-  "Returns true if the given value is a zone offset."
+  "Returns true if the given value is a zone offset.
+   Examples:
+
+     => (zone-offset? (zone-offset :utc))
+     true
+     => (zone-offset? (zone-id \"Europe/Helsinki\"))
+     false"
   [x] (instance? ZoneOffset x))
 
 (defn clock?
@@ -274,6 +288,33 @@
    (LocalDate/of year month day-of-month)))
 
 (defn local-time
+  "Coerce to local time.
+   Can also be used to parse a local time using a custom formatter, or to create
+   a time from hours, minutes, seconds and nanoseconds.
+   Examples:
+
+     => (local-time) ; Current time
+     #<LocalTime 12:15:00.123>
+     => (local-time (clock))
+     #<LocalTime 12:15:00.123>
+     => (local-time (zone-id \"Asia/Shanghai\")) ; Current time in Shanghai
+     #<LocalTime 17:15:00.123>
+     => (local-time \"12:15\")
+     #<LocalTime 12:15>
+     => (local-time \"12:15:00.123\")
+     #<LocalTime 12:15:00.123>
+     => (local-time :noon)
+     #<LocalTime 12:00>
+     => (local-time (local-date-time)) ; Time part of local date-time
+     #<LocalTime 12:15:00.123>
+     => (local-time \"12.15\" (date-time-formatter \"HH.mm\"))
+     #<LocalTime 12:15>
+     => (local-time 12 15)
+     #<LocalTime 12:15>
+     => (local-time 12 15 0)
+     #<LocalTime 12:15>
+     => (local-time 12 15 0 123000000)
+     #<LocalTime 12:15:00.123>"
   ([]
    (LocalTime/now))
   ([x]
@@ -284,10 +325,41 @@
      string? (LocalTime/parse x)
      keyword? (local-time-keywords x)
      :else (LocalTime/from x)))
-  ([text formatter]
-   (LocalTime/parse text formatter)))
+  ([hour-or-text minute-or-formatter]
+   (pred-cond hour-or-text
+     integer? (LocalTime/of hour-or-text minute-or-formatter)
+     :else (LocalTime/parse hour-or-text minute-or-formatter)))
+  ([hour minute second]
+   (LocalTime/of hour minute second))
+  ([hour minute second nano-of-second]
+   (LocalTime/of hour minute second nano-of-second)))
 
 (defn offset-time
+  "Coerce to time with offset.
+   Can also be used to parse a time with offset using a custom formatter, or to
+   create a time with offset from hours, minutes, seconds and nanoseconds.
+   Examples:
+
+     => (offset-time) ; Current time with offset
+     #<OffsetTime 12:15:00.123+03:00>
+     => (offset-time (clock))
+     #<OffsetTime 12:15:00.123+03:00>
+     => (offset-time (zone-id \"Asia/Shanghai\"))
+     #<OffsetTime 17:15:00.123+08:00>
+     => (offset-time \"12:15:00.123+03:00\")
+     #<OffsetTime 12:15:00.123+03:00>
+     => (offset-time :max)
+     #<OffsetTime 23:59:59.999999999-18:00>
+     => (offset-time (offset-date-time))
+     #<OffsetTime 12:15:00.123+03:00>
+     => (offset-time (local-time 12 15) (zone-offset (hours 3)))
+     #<OffsetTime 12:15+03:00>
+     => (offset-time (instant) (zone-id \"Europe/Helsinki\"))
+     #<OffsetTime 12:15:00.123+03:00>
+     => (offset-time \"12.15+0300\" (date-time-formatter \"HH.mmx\"))
+     #<OffsetTime 12:15+03:00>
+     => (offset-time 12 15 0 123000000 (zone-offset (hours 3)))
+     #<OffsetTime 12:15:00.123+03:00>"
   ([]
    (OffsetTime/now))
   ([x]
@@ -310,7 +382,7 @@
              time-or-instant-or-text
              offset-or-zone-or-formatter)))
   ([hour minute second nano-of-second offset]
-   (OffsetTime/of hour minute second nano-of-second offset)))
+   (OffsetTime/of hour minute second nano-of-second (zone-offset offset))))
 
 (defn local-date-time
   ([]
