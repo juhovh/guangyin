@@ -223,10 +223,10 @@
 
 (defn period
   "Coerce to period.
-   Notice that period is only for days and larger time units. If you want to work
-   with time you should use duration instead. Can also be used to create a period
-   from start and end date. See also functions years, months, weeks and days,
-   they all return a period.
+   Notice that period is only for days and larger time units. If you want to
+   work with time you should use duration instead. Can also be used to create a
+   period from start and end date. See also functions years, months, weeks and
+   days, they all return a period.
    Examples:
 
      => (period \"P2Y\")
