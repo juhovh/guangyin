@@ -1,14 +1,12 @@
 (ns guangyin.internal.types-test
   (:require [clojure.test :refer :all]
             [guangyin.internal.fields :refer :all]
-            [guangyin.internal.types :refer [defwrapper]]))
-
-(defwrapper LocalDate java.time.LocalDate chrono-field-keywords)
+            [guangyin.internal.types :refer :all]))
 
 (deftest test-temporal
   (let [date (java.time.LocalDate/parse "2015-01-10")
         newdate (java.time.LocalDate/parse "2016-01-10")
-        wrapped (->LocalDate date)]
+        wrapped (wrap-temporal chrono-field-keywords date)]
     (is (= date @wrapped))
     (is (= 2015 (:year wrapped)))
     (is (= 1 (:month-of-year wrapped)))
