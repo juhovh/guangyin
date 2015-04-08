@@ -31,7 +31,12 @@
   (let [class (resolve type)]
     (cond
       ((supers class) Temporal)
-        `(deftype ~name [parent#]
+      `(do
+         (deftype ~name [parent#]
+           java.lang.Object
+           (equals [this# obj#] (.equals parent# obj#))
+           (hashCode [this#] (.hashCode parent#))
+           (toString [this#] (.toString parent#))
            clojure.lang.IDeref
            (deref [this#] parent#)
            clojure.lang.ILookup
@@ -45,15 +50,32 @@
              (get-entry parent# ~fields key#))
            (assoc [this# key# val#]
              (new ~name (assoc-field parent# ~fields key# val#))))
+         (defmethod print-method ~name [o# w#]
+           (.write w# (str "#<" (.getSimpleName (class o#)) " " (.toString o#) ">"))))
       ((supers class) TemporalAccessor)
-        `(deftype ~name [parent#]
+      `(do
+         (deftype ~name [parent#]
+           java.lang.Object
+           (equals [this# obj#] (.equals parent# obj#))
+           (hashCode [this#] (.hashCode parent#))
+           (toString [this#] (.toString parent#))
            clojure.lang.IDeref
            (deref [this#] parent#)
            clojure.lang.ILookup
            (valAt [this# key#] (get-field parent# ~fields key#))
            (valAt [this# key# notfound#]
              (get-field parent# ~fields key# notfound#)))
+         (defmethod print-method ~name [o# w#]
+           (.write w# (str "#<" (.getSimpleName (class o#)) " " (.toString o#) ">"))))
       :else
-        `(deftype ~name [parent#]
+      `(do
+         (deftype ~name [parent#]
+           java.lang.Object
+           (equals [this# obj#] (.equals parent# obj#))
+           (hashCode [this#] (.hashCode parent#))
+           (toString [this#] (.toString parent#))
            clojure.lang.IDeref
-           (deref [this#] parent#)))))
+           (deref [this#] parent#))
+         (defmethod print-method ~name [o# w#]
+           (.write w# (str "#<" (.getSimpleName (class o#)) " " (.toString o#) ">")))))))
+
