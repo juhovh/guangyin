@@ -5,6 +5,11 @@
   [obj writer]
   (print-method (.getWrapped obj) writer))
 
+(defn wrapped-instance?
+  [^Class c x]
+  (and (instance? ObjectWrapper x)
+       (instance? c (.getWrapped x))))
+
 (defmacro wrap-object
   [& body]
   `(ObjectWrapper. (do ~@body)))

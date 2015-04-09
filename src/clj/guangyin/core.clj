@@ -1,6 +1,7 @@
 (ns guangyin.core
   "The core namespace for basic date and time handling."
-  (:require [guangyin.internal.fields :refer :all]
+  (:require [guangyin.internal.fields :as fields]
+            [guangyin.internal.types :refer :all]
             [guangyin.internal.utils :refer :all])
   (:import (java.time Clock Duration Instant LocalDate LocalDateTime LocalTime
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
@@ -142,7 +143,7 @@
    (pred-cond-throw x (str "Invalid zone-offset: " x)
      zone-offset? x
      string? (ZoneOffset/of x)
-     keyword? (zone-offset-keywords x)
+     keyword? (fields/zone-offsets x)
      duration? (ZoneOffset/ofTotalSeconds (/ (.toMillis x) 1000))
      :else (ZoneOffset/from x))))
 
@@ -191,7 +192,7 @@
    (pred-cond-throw x (str "Invalid instant: " x)
      clock? (Instant/now x)
      string? (Instant/parse x)
-     keyword? (instant-keywords x)
+     keyword? (fields/instants x)
      :else (Instant/from x))))
 
 (defn duration
@@ -245,7 +246,7 @@
    (pred-cond-throw x (str "Invalid period: " x)
      period? x
      string? (Period/parse x)
-     keyword? (period-keywords x)
+     keyword? (fields/periods x)
      :else (Period/from x)))
   ([start-date-inclusive end-date-exclusive]
    (Period/between start-date-inclusive end-date-exclusive)))
@@ -280,7 +281,7 @@
      clock? (LocalDate/now x)
      zone-id? (LocalDate/now x)
      string? (LocalDate/parse x)
-     keyword? (local-date-keywords x)
+     keyword? (fields/local-dates x)
      :else (LocalDate/from x)))
   ([text formatter]
    (LocalDate/parse text formatter))
@@ -323,7 +324,7 @@
      clock? (LocalTime/now x)
      zone-id? (LocalTime/now x)
      string? (LocalTime/parse x)
-     keyword? (local-time-keywords x)
+     keyword? (fields/local-times x)
      :else (LocalTime/from x)))
   ([hour-or-text minute-or-formatter]
    (pred-cond hour-or-text
@@ -368,7 +369,7 @@
      clock? (OffsetTime/now x)
      zone-id? (OffsetTime/now x)
      string? (OffsetTime/parse x)
-     keyword? (offset-time-keywords x)
+     keyword? (fields/offset-times x)
      :else (OffsetTime/from x)))
   ([time-or-instant-or-text offset-or-zone-or-formatter]
    (pred-cond time-or-instant-or-text
@@ -393,7 +394,7 @@
      clock? (LocalDateTime/now x)
      zone-id? (LocalDateTime/now x)
      string? (LocalDateTime/parse x)
-     keyword? (local-date-time-keywords x)
+     keyword? (fields/local-date-times x)
      :else (LocalDateTime/from x)))
   ([date-or-instant-or-text time-or-zone-or-formatter]
    (pred-cond date-or-instant-or-text
@@ -423,7 +424,7 @@
      clock? (OffsetDateTime/now x)
      zone-id? (OffsetDateTime/now x)
      string? (OffsetDateTime/parse x)
-     keyword? (offset-date-time-keywords x)
+     keyword? (fields/offset-date-times x)
      :else (OffsetDateTime/from x)))
   ([date-time-or-instant-or-text offset-or-zone-or-formatter]
    (pred-cond date-time-or-instant-or-text
@@ -479,7 +480,7 @@
      zone-id? (Year/now x)
      integer? (Year/of x)
      string? (Year/parse x)
-     keyword? (year-keywords x)
+     keyword? (fields/years x)
      :else (Year/from x)))
   ([text formatter]
    (Year/parse text formatter)))
@@ -501,7 +502,7 @@
 
 (defn get-field
   [accessor field]
-  (.get accessor (chrono-field-keywords field)))
+  (.get accessor (fields/all-iso-fields field)))
 
 (defn month
   ([]
@@ -510,7 +511,7 @@
    (pred-cond-throw x (str "Invalid month: " x)
      month? x
      integer? (Month/of x)
-     keyword? (month-keywords x)
+     keyword? (fields/months x)
      :else (Month/of (get-field (local-date x) :month-of-year)))))
 
 (defn month-day
@@ -535,7 +536,7 @@
    (pred-cond-throw x (str "Invalid day-of-week: " x)
      day-of-week? x
      integer? (DayOfWeek/of x)
-     keyword? (day-of-week-keywords x)
+     keyword? (fields/day-of-weeks x)
      :else (DayOfWeek/of (get-field (local-date x) :day-of-week)))))
 
 (defn clock

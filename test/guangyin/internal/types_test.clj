@@ -6,7 +6,7 @@
 (deftest test-temporal
   (let [date (java.time.LocalDate/parse "2015-01-10")
         newdate (java.time.LocalDate/parse "2016-01-10")
-        wrapped (wrap-temporal chrono-field-keywords date)]
+        wrapped (wrap-temporal all-iso-fields date)]
     (is (= date @wrapped))
     (is (= 2015 (:year wrapped)))
     (is (= 1 (:month-of-year wrapped)))
