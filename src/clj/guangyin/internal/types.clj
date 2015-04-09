@@ -1,5 +1,6 @@
 (ns guangyin.internal.types
-  (:import (guangyin.internal.types ObjectWrapper TemporalAccessorWrapper TemporalWrapper)))
+  (:import (guangyin.internal.types ObjectWrapper TemporalAmountWrapper
+                                    TemporalAccessorWrapper TemporalWrapper)))
 
 (defmethod print-method ObjectWrapper
   [obj writer]
@@ -7,8 +8,9 @@
 
 (defn wrapped-instance?
   [^Class c x]
-  (and (instance? ObjectWrapper x)
-       (instance? c (.getWrapped x))))
+  (or (instance? c x) ; FIXME This should be removed
+      (and (instance? ObjectWrapper x)
+           (instance? c (.getWrapped x)))))
 
 (defmacro wrap-object
   [& body]
@@ -21,3 +23,7 @@
 (defmacro wrap-temporal
   [keymap & body]
   `(TemporalWrapper. ~keymap (do ~@body)))
+
+(defmacro wrap-temporal-amount
+  [keymap & body]
+  `(TemporalAmountWrapper. ~keymap (do ~@body)))
