@@ -12,6 +12,10 @@
       (and (instance? ObjectWrapper x)
            (instance? c @x))))
 
+(defn unwrap
+  [x]
+  (if (instance? ObjectWrapper x) @x x))
+
 (defmacro wrap-object
   [& body]
   `(ObjectWrapper. (do ~@body)))
