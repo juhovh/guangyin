@@ -2,7 +2,7 @@ package guangyin.internal.types;
 
 import clojure.lang.IDeref;
 
-public class ObjectWrapper implements IDeref {
+public class ObjectWrapper implements Comparable, IDeref {
     private Object wrapped;
 
     public ObjectWrapper(Object wrapped) {
@@ -22,6 +22,15 @@ public class ObjectWrapper implements IDeref {
 
     public String toString() {
         return this.wrapped.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public int compareTo(Object o) {
+        // Unwrap the wrapped object for comparison if needed
+        if (o instanceof ObjectWrapper) {
+            o = ((ObjectWrapper) o).deref();
+        }
+        return ((Comparable) this.wrapped).compareTo(o);
     }
 
     public Object deref() {
