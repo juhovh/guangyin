@@ -4,13 +4,13 @@
 
 (defmethod print-method ObjectWrapper
   [obj writer]
-  (print-method (.getWrapped obj) writer))
+  (print-method @obj writer))
 
 (defn wrapped-instance?
   [^Class c x]
   (or (instance? c x) ; FIXME This should be removed
       (and (instance? ObjectWrapper x)
-           (instance? c (.getWrapped x)))))
+           (instance? c @x))))
 
 (defmacro wrap-object
   [& body]

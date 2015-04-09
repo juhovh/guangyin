@@ -27,8 +27,4 @@ public class ObjectWrapper implements IDeref {
     public Object deref() {
         return this.wrapped;
     }
-
-    public Object getWrapped() {
-        return this.wrapped;
-    }
 }
