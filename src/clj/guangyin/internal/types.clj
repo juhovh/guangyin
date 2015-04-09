@@ -2,8 +2,8 @@
   (:import (guangyin.internal.types ObjectWrapper TemporalAccessorWrapper TemporalWrapper)))
 
 (defmethod print-method ObjectWrapper
-  [o ^java.io.Writer w]
-  (.write w (str "#<" (.getSimpleName (class @o)) " " (str o) ">")))
+  [obj writer]
+  (print-method (.getWrapped obj) writer))
 
 (defmacro wrap-object
   [& body]
