@@ -140,7 +140,7 @@
      => (zone-offset (offset-time)) ; Current offset
      #<ZoneOffset +03:00>"
   ([x]
-   (wrap-temporal-accessor fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid zone-offset: " x)
        zone-offset? x
        string? (ZoneOffset/of x)
@@ -164,16 +164,16 @@
      => (zone-id \"UTC\" (zone-offset \"+08:00\")) ; For completeness
      #<ZoneRegion UTC+08:00>"
   ([]
-   (wrap-object
+   (wrap
      (ZoneId/systemDefault)))
   ([x]
-   (wrap-object
+   (wrap
      (pred-cond-throw x (str "Invalid zone-id: " x)
        zone-id? x
        string? (ZoneId/of x)
        :else (ZoneId/from x))))
   ([prefix offset]
-   (wrap-object
+   (wrap
      (ZoneId/ofOffset prefix offset))))
 
 (defn instant
@@ -191,10 +191,10 @@
      => (instant (offset-date-time)) ; From date-time containing instant
      #<Instant 2015-01-01T12:15:00.123Z>"
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (Instant/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid instant: " x)
        clock? (Instant/now x)
        string? (Instant/parse x)
@@ -222,12 +222,12 @@
      => (duration (local-time :midnight) (local-time :noon))
      #<Duration PT12H>"
   ([x]
-   (wrap-temporal-amount fields/all-iso-units
+   (wrap
      (if (string? x)
          (Duration/parse x)
          (Duration/from x))))
   ([start-inclusive end-exclusive]
-   (wrap-temporal-amount fields/all-iso-units
+   (wrap
      (Duration/between start-inclusive end-exclusive))))
 
 (defn period
@@ -251,14 +251,14 @@
      => (period (local-date \"2015-01-01\") (local-date \"2017-04-12\"))
      #<Period P2Y3M11D>"
   ([x]
-   (wrap-temporal-amount fields/all-iso-units
+   (wrap
      (pred-cond-throw x (str "Invalid period: " x)
        period? x
        string? (Period/parse x)
        keyword? (fields/periods x)
        :else (Period/from x))))
   ([start-date-inclusive end-date-exclusive]
-   (wrap-temporal-amount fields/all-iso-units
+   (wrap
      (Period/between start-date-inclusive end-date-exclusive))))
 
 (defn local-date
@@ -284,10 +284,10 @@
      => (local-date 2015 4 1)
      #<LocalDate 2015-04-01>"
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDate/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid local-date: " x)
        local-date? x
        clock? (LocalDate/now x)
@@ -296,10 +296,10 @@
        keyword? (fields/local-dates x)
        :else (LocalDate/from x))))
   ([text formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDate/parse text formatter)))
   ([year month day-of-month]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDate/of year month day-of-month))))
 
 (defn local-time
@@ -331,10 +331,10 @@
      => (local-time 12 15 0 123000000)
      #<LocalTime 12:15:00.123>"
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalTime/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid local-time: " x)
        local-time? x
        clock? (LocalTime/now x)
@@ -343,15 +343,15 @@
        keyword? (fields/local-times x)
        :else (LocalTime/from x))))
   ([hour-or-text minute-or-formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond hour-or-text
        integer? (LocalTime/of hour-or-text minute-or-formatter)
        :else (LocalTime/parse hour-or-text minute-or-formatter))))
   ([hour minute second]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalTime/of hour minute second)))
   ([hour minute second nano-of-second]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalTime/of hour minute second nano-of-second))))
 
 (defn offset-time
@@ -381,10 +381,10 @@
      => (offset-time 12 15 0 123000000 (zone-offset (hours 3)))
      #<OffsetTime 12:15:00.123+03:00>"
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (OffsetTime/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid offset-time: " x)
        offset-time? x
        clock? (OffsetTime/now x)
@@ -393,7 +393,7 @@
        keyword? (fields/offset-times x)
        :else (OffsetTime/from x))))
   ([time-or-instant-or-text offset-or-zone-or-formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond time-or-instant-or-text
        local-time? (OffsetTime/of
                      time-or-instant-or-text
@@ -405,15 +405,15 @@
                time-or-instant-or-text
                offset-or-zone-or-formatter))))
   ([hour minute second nano-of-second offset]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (OffsetTime/of hour minute second nano-of-second (zone-offset offset)))))
 
 (defn local-date-time
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDateTime/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid local-date-time: " x)
        local-date-time? x
        clock? (LocalDateTime/now x)
@@ -422,7 +422,7 @@
        keyword? (fields/local-date-times x)
        :else (LocalDateTime/from x))))
   ([date-or-instant-or-text time-or-zone-or-formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond date-or-instant-or-text
        local-date? (LocalDateTime/of
                      date-or-instant-or-text
@@ -434,22 +434,22 @@
                date-or-instant-or-text
                time-or-zone-or-formatter))))
   ([year month day-of-month hour minute]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDateTime/of year month day-of-month hour minute)))
   ([year month day-of-month hour minute second]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDateTime/of year month day-of-month hour minute second)))
   ([year month day-of-month hour minute second nano-of-second]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (LocalDateTime/of year month day-of-month hour minute second
                        nano-of-second))))
 
 (defn offset-date-time
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (OffsetDateTime/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid offset-date-time: " x)
        offset-date-time? x
        clock? (OffsetDateTime/now x)
@@ -458,7 +458,7 @@
        keyword? (fields/offset-date-times x)
        :else (OffsetDateTime/from x))))
   ([date-time-or-instant-or-text offset-or-zone-or-formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond date-time-or-instant-or-text
        local-date-time? (OffsetDateTime/of
                           date-time-or-instant-or-text
@@ -470,19 +470,19 @@
                date-time-or-instant-or-text
                offset-or-zone-or-formatter))))
   ([date time offset]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (OffsetDateTime/of date time offset)))
   ([year month day-of-month hour minute second nano-of-second offset]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (OffsetDateTime/of year month day-of-month hour minute second
                         nano-of-second offset))))
 
 (defn zoned-date-time
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (ZonedDateTime/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid zoned-date-time: " x)
        zoned-date-time? x
        clock? (ZonedDateTime/now x)
@@ -490,7 +490,7 @@
        string? (ZonedDateTime/parse x)
        :else (ZonedDateTime/from x))))
   ([date-time-or-instant-or-text zone-or-formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond date-time-or-instant-or-text
        local-date-time? (ZonedDateTime/of
                           date-time-or-instant-or-text
@@ -509,10 +509,10 @@
 
 (defn year
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (Year/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid year: " x)
        year? x
        clock? (Year/now x)
@@ -522,15 +522,15 @@
        keyword? (fields/years x)
        :else (Year/from x))))
   ([text formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (Year/parse text formatter))))
 
 (defn year-month
   ([]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (YearMonth/now)))
   ([x]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (pred-cond x
        year-month? x
        clock? (YearMonth/now x)
@@ -538,7 +538,7 @@
        string? (YearMonth/parse x)
        :else (YearMonth/from x))))
   ([year-or-text month-or-formatter]
-   (wrap-temporal fields/all-iso-fields
+   (wrap
      (if (integer? year-or-text)
          (YearMonth/of year-or-text month-or-formatter)
          (YearMonth/parse year-or-text month-or-formatter)))))
@@ -547,7 +547,7 @@
   ([]
    (month (:month-of-year (local-date))))
   ([x]
-   (wrap-temporal-accessor fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid month: " x)
        month? x
        integer? (Month/of x)
@@ -556,10 +556,10 @@
 
 (defn month-day
   ([]
-   (wrap-temporal-accessor fields/all-iso-fields
+   (wrap
      (MonthDay/now)))
   ([x]
-   (wrap-temporal-accessor fields/all-iso-fields
+   (wrap
      (pred-cond x
        month-day? x
        clock? (MonthDay/now x)
@@ -567,7 +567,7 @@
        string? (MonthDay/parse x)
        :else (MonthDay/from x))))
   ([month-or-text day-or-formatter]
-   (wrap-temporal-accessor fields/all-iso-fields
+   (wrap
      (if (integer? month-or-text)
          (MonthDay/of month-or-text day-or-formatter)
          (MonthDay/parse month-or-text day-or-formatter)))))
@@ -576,7 +576,7 @@
   ([]
    (day-of-week (:day-of-week (local-date))))
   ([x]
-   (wrap-temporal-accessor fields/all-iso-fields
+   (wrap
      (pred-cond-throw x (str "Invalid day-of-week: " x)
        day-of-week? x
        integer? (DayOfWeek/of x)
@@ -585,55 +585,55 @@
 
 (defn clock
   ([]
-   (wrap-object
+   (wrap
      (Clock/systemDefaultZone)))
   ([x]
-   (wrap-object
+   (wrap
      (Clock/system (zone-id x))))
   ([instant-or-clock zone-or-duration]
-   (wrap-object
+   (wrap
      (if (instant? instant-or-clock) 
          (Clock/fixed instant-or-clock (zone-id zone-or-duration))
          (Clock/offset instant-or-clock (duration zone-or-duration))))))
 
 (defn years
   [years]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Period/ofYears years)))
 
 (defn months
   [months]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Period/ofMonths months)))
 
 (defn weeks
   [weeks]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Period/ofWeeks weeks)))
 
 (defn days
   [days]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Period/ofDays days)))
 
 (defn hours
   [hours]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Duration/ofHours hours)))
 
 (defn minutes
   [minutes]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Duration/ofMinutes minutes)))
 
 (defn seconds
   [seconds]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Duration/ofSeconds seconds)))
 
 (defn nanos
   [nanos]
-  (wrap-temporal-amount fields/all-iso-units
+  (wrap
     (Duration/ofNanos nanos)))
 
 (defn plus
