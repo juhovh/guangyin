@@ -7,15 +7,18 @@
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
                       ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)))
 
-(defprotocol IInstant
-  (instant? [this]
-   "Returns true if the given value is an instant.
-    Examples:
+(defn instant?
+  "Returns true if the given value is an instant.
+   Examples:
 
-     => (instant? (instant))
-     true
-     => (instant? (days 1))
-     false")
+    => (instant? (instant))
+    true
+    => (instant? (days 1))
+    false"
+  [x]
+  (instance? Instant (unwrap x)))
+
+(defprotocol IInstant
   (instant [this]
    "Coerce to instant.
     Examples:
@@ -33,37 +36,33 @@
 
 (extend-protocol IInstant
   guangyin.internal.types.ObjectWrapper
-  (instant? [this] (instant? @this))
   (instant [this] (instant @this))
   clojure.lang.Keyword
-  (instant? [this] false)
   (instant [this] (if (= this :now)
                       (wrap (Instant/now))
                       (wrap (fields/instants this))))
   java.time.temporal.TemporalAccessor
-  (instant? [this] (instance? Instant this))
   (instant [this] (wrap (Instant/from this)))
   java.time.Clock
-  (instant? [this] false)
   (instant [this] (wrap (Instant/now this)))
   java.lang.String
-  (instant? [this] false)
-  (instant [this] (wrap (Instant/parse this)))
-  java.lang.Object
-  (instant? [this] false))
+  (instant [this] (wrap (Instant/parse this))))
+
+(defn duration?
+  "Returns true if the given value is a duration.
+   Duration refers to an exact length of time that can be converted accurately
+   to seconds without any time zone information, basically any length of time
+   that is measured in hours or smaller units than that.
+   Examples:
+
+     => (duration? (hours 1))
+     true
+     => (duration? (days 1))
+     false"
+  [x]
+  (instance? Duration (unwrap x)))
 
 (defprotocol IDuration
-  (duration? [this]
-   "Returns true if the given value is a duration.
-    Duration refers to an exact length of time that can be converted accurately
-    to seconds without any time zone information, basically any length of time
-    that is measured in hours or smaller units than that.
-    Examples:
-
-      => (duration? (hours 1))
-      true
-      => (duration? (days 1))
-      false")
   (duration [this] [this other]
    "Coerce to duration.
     Notice that duration is only for exact times, if you are working with dates
@@ -87,36 +86,32 @@
 
 (extend-protocol IDuration
   guangyin.internal.types.ObjectWrapper
-  (duration? [this] (duration? @this))
   (duration [this] (duration @this))
-  (duration [this other] (duration @this (unwrap other)))
+  (duration [this other] (duration @this other))
   clojure.lang.Keyword
-  (duration? [this] false)
   (duration [this] (wrap (fields/durations this)))
   java.time.temporal.Temporal
-  (duration? [this] false)
-  (duration [this other] (wrap (Duration/between this other)))
+  (duration [this other] (wrap (Duration/between this (unwrap other))))
   java.time.temporal.TemporalAmount
-  (duration? [this] (instance? Duration this))
   (duration [this] (wrap (Duration/from this)))
   java.lang.String
-  (duration? [this] false)
-  (duration [this] (wrap (Duration/parse this)))
-  java.lang.Object
-  (duration? [this] false))
+  (duration [this] (wrap (Duration/parse this))))
+
+(defn period?
+  "Returns true if the given value is a period.
+   Period refers to a length of time that can not be converted accurately to
+   seconds without any time zone information, basically any length of time that
+   is measured in days or larger units than that.
+   Examples:
+
+     => (period? (weeks 1))
+     true
+     => (period? (minutes 30))
+     false"
+  [x]
+  (instance? Period (unwrap x)))
 
 (defprotocol IPeriod
-  (period? [this]
-   "Returns true if the given value is a period.
-    Period refers to a length of time that can not be converted accurately to
-    seconds without any time zone information, basically any length of time that
-    is measured in days or larger units than that.
-    Examples:
-
-      => (period? (weeks 1))
-      true
-      => (period? (minutes 30))
-      false")
   (period [this] [this other]
    "Coerce to period.
     Notice that period is only for days and larger time units. If you want to
@@ -140,31 +135,124 @@
   
 (extend-protocol IPeriod
   guangyin.internal.types.ObjectWrapper
-  (period? [this] (period? @this))
   (period [this] (period @this))
-  (period [this other] (period @this (unwrap other)))
+  (period [this other] (period @this other))
   clojure.lang.Keyword
-  (period? [this] false)
   (period [this] (wrap (fields/periods this)))
   java.time.temporal.TemporalAmount
-  (period? [this] (instance? Period this))
   (period [this] (wrap (Period/from this)))
   java.time.LocalDate
-  (period? [this] false)
   (period [this other] (wrap (Period/between this (unwrap other))))
   java.lang.String
-  (period? [this] false)
-  (period [this] (wrap (Period/parse this)))
-  java.lang.Object
-  (period? [this] false))
+  (period [this] (wrap (Period/parse this))))
 
 (defn local-date?
   "Returns true if the given value is a local date."
-  [x] (wrapped-instance? LocalDate x))
+  [x]
+  (instance? LocalDate (unwrap x)))
+
+(defprotocol ILocalDate
+  (local-date [this] [this param] [year month date]
+   "Coerce to local date.
+    Can also be used to parse a local date using a custom formatter, or to
+    create a date from year, month and day of month.
+    Examples:
+
+      => (local-date :now) ; Current date
+      #<LocalDate 2015-04-01>
+      => (local-date (clock))
+      #<LocalDate 2015-04-01>
+      => (local-date (zone-id \"Asia/Shanghai\")) ; Current date in Shanghai
+      #<LocalDate 2015-04-02>
+      => (local-date \"2015-04-01\")
+      #<LocalDate 2015-04-01>
+      => (local-date :max) ; Largest local date, also :min supported
+      #<LocalDate +999999999-12-31>
+      => (local-date (offset-date-time))
+      #<LocalDate 2015-04-01>
+      => (local-date \"01.04.2015\" (date-time-formatter \"dd.MM.yyyy\"))
+      #<LocalDate 2015-04-01>
+      => (local-date 2015 4 1)
+      #<LocalDate 2015-04-01>"))
+
+(extend-protocol ILocalDate
+  guangyin.internal.types.ObjectWrapper
+  (local-date [this] (local-date @this))
+  (local-date [this param] (local-date @this param))
+  clojure.lang.Keyword
+  (local-date [this] (if (= this :now)
+                         (wrap (LocalDate/now))
+                         (wrap (fields/local-dates this))))
+  java.time.temporal.TemporalAccessor
+  (local-date [this] (wrap (LocalDate/from this)))
+  java.time.Clock
+  (local-date [this] (wrap (LocalDate/now this)))
+  java.time.ZoneId
+  (local-date [this] (wrap (LocalDate/now this)))
+  java.lang.String
+  (local-date ([this] (wrap (LocalDate/parse this)))
+              ([this param] (wrap (LocalDate/parse this (unwrap param)))))
+  java.lang.Integer
+  (local-date [year month day] (wrap (LocalDate/of year month day))))
 
 (defn local-time?
   "Returns true if the given value is a local time."
-  [x] (wrapped-instance? LocalTime x))
+  [x]
+  (instance? LocalTime (unwrap x)))
+
+(defprotocol ILocalTime
+  (local-time [this] [this param] [hour minute second]
+              [hour minute second nanosecond]
+   "Coerce to local time.
+    Can also be used to parse a local time using a custom formatter, or to
+    create a time from hours, minutes, seconds and nanoseconds.
+    Examples:
+
+      => (local-time :now) ; Current time
+      #<LocalTime 12:15:00.123>
+      => (local-time (clock))
+      #<LocalTime 12:15:00.123>
+      => (local-time (zone-id \"Asia/Shanghai\")) ; Current time in Shanghai
+      #<LocalTime 17:15:00.123>
+      => (local-time \"12:15\")
+      #<LocalTime 12:15>
+      => (local-time \"12:15:00.123\")
+      #<LocalTime 12:15:00.123>
+      => (local-time :noon)
+      #<LocalTime 12:00>
+      => (local-time (local-date-time)) ; Time part of local date-time
+      #<LocalTime 12:15:00.123>
+      => (local-time \"12.15\" (date-time-formatter \"HH.mm\"))
+      #<LocalTime 12:15>
+      => (local-time 12 15)
+      #<LocalTime 12:15>
+      => (local-time 12 15 0)
+      #<LocalTime 12:15>
+      => (local-time 12 15 0 123000000)
+      #<LocalTime 12:15:00.123>"))
+
+(extend-protocol ILocalTime
+  guangyin.internal.types.ObjectWrapper
+  (local-time [this] (local-time @this))
+  (local-time [this param] (local-time @this param))
+  clojure.lang.Keyword
+  (local-time [this] (if (= this :now)
+                         (wrap (LocalTime/now))
+                         (wrap (fields/local-times this))))
+  java.time.temporal.TemporalAccessor
+  (local-time [this] (wrap (LocalTime/from this)))
+  java.time.Clock
+  (local-time [this] (wrap (LocalTime/now this)))
+  java.time.ZoneId
+  (local-time [this] (wrap (LocalTime/now this)))
+  java.lang.String
+  (local-time ([this] (wrap (LocalTime/parse this)))
+              ([this param] (wrap (LocalTime/parse this (unwrap param)))))
+  java.lang.Integer
+  (local-time ([hour minute] (wrap (LocalTime/of hour minute)))
+              ([hour minute second] (wrap (LocalTime/of hour minute second)))
+              ([hour minute second nanosecond]
+               (wrap (LocalTime/of hour minute second nanosecond)))))
 
 (defn offset-time?
   "Returns true if the given value is a time with a zone offset."
@@ -290,99 +378,6 @@
   ([prefix offset]
    (wrap
      (ZoneId/ofOffset prefix offset))))
-
-(defn local-date
-  "Coerce to local date.
-   Can also be used to parse a local date using a custom formatter, or to create
-   a date from year, month and day of month.
-   Examples:
-
-     => (local-date) ; Current date
-     #<LocalDate 2015-04-01>
-     => (local-date (clock))
-     #<LocalDate 2015-04-01>
-     => (local-date (zone-id \"Asia/Shanghai\")) ; Current date in Shanghai
-     #<LocalDate 2015-04-02>
-     => (local-date \"2015-04-01\")
-     #<LocalDate 2015-04-01>
-     => (local-date :max) ; Largest local date, also :min supported
-     #<LocalDate +999999999-12-31>
-     => (local-date (offset-date-time))
-     #<LocalDate 2015-04-01>
-     => (local-date \"01.04.2015\" (date-time-formatter \"dd.MM.yyyy\"))
-     #<LocalDate 2015-04-01>
-     => (local-date 2015 4 1)
-     #<LocalDate 2015-04-01>"
-  ([]
-   (wrap
-     (LocalDate/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid local-date: " x)
-       local-date? x
-       clock? (LocalDate/now x)
-       zone-id? (LocalDate/now x)
-       string? (LocalDate/parse x)
-       keyword? (fields/local-dates x)
-       :else (LocalDate/from x))))
-  ([text formatter]
-   (wrap
-     (LocalDate/parse text formatter)))
-  ([year month day-of-month]
-   (wrap
-     (LocalDate/of year month day-of-month))))
-
-(defn local-time
-  "Coerce to local time.
-   Can also be used to parse a local time using a custom formatter, or to create
-   a time from hours, minutes, seconds and nanoseconds.
-   Examples:
-
-     => (local-time) ; Current time
-     #<LocalTime 12:15:00.123>
-     => (local-time (clock))
-     #<LocalTime 12:15:00.123>
-     => (local-time (zone-id \"Asia/Shanghai\")) ; Current time in Shanghai
-     #<LocalTime 17:15:00.123>
-     => (local-time \"12:15\")
-     #<LocalTime 12:15>
-     => (local-time \"12:15:00.123\")
-     #<LocalTime 12:15:00.123>
-     => (local-time :noon)
-     #<LocalTime 12:00>
-     => (local-time (local-date-time)) ; Time part of local date-time
-     #<LocalTime 12:15:00.123>
-     => (local-time \"12.15\" (date-time-formatter \"HH.mm\"))
-     #<LocalTime 12:15>
-     => (local-time 12 15)
-     #<LocalTime 12:15>
-     => (local-time 12 15 0)
-     #<LocalTime 12:15>
-     => (local-time 12 15 0 123000000)
-     #<LocalTime 12:15:00.123>"
-  ([]
-   (wrap
-     (LocalTime/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid local-time: " x)
-       local-time? x
-       clock? (LocalTime/now x)
-       zone-id? (LocalTime/now x)
-       string? (LocalTime/parse x)
-       keyword? (fields/local-times x)
-       :else (LocalTime/from x))))
-  ([hour-or-text minute-or-formatter]
-   (wrap
-     (pred-cond hour-or-text
-       integer? (LocalTime/of hour-or-text minute-or-formatter)
-       :else (LocalTime/parse hour-or-text minute-or-formatter))))
-  ([hour minute second]
-   (wrap
-     (LocalTime/of hour minute second)))
-  ([hour minute second nano-of-second]
-   (wrap
-     (LocalTime/of hour minute second nano-of-second))))
 
 (defn offset-time
   "Coerce to time with offset.
@@ -575,7 +570,7 @@
 
 (defn month
   ([]
-   (month (:month-of-year (local-date))))
+   (Month/of (:month-of-year (local-date :now))))
   ([x]
    (wrap
      (pred-cond-throw x (str "Invalid month: " x)
@@ -604,7 +599,7 @@
 
 (defn day-of-week
   ([]
-   (day-of-week (:day-of-week (local-date))))
+   (DayOfWeek/of (:day-of-week (local-date :now))))
   ([x]
    (wrap
      (pred-cond-throw x (str "Invalid day-of-week: " x)
