@@ -319,13 +319,124 @@
   "Returns true if the given value is a local date-time."
   [x] (wrapped-instance? LocalDateTime x))
 
+(defprotocol ILocalDateTime
+  (local-date-time [this] [this param] [year month day hour minute]
+                   [year month day hour minute second]
+                   [year month day hour minute second nanosecond]))
+
+(extend-protocol ILocalDateTime
+  guangyin.internal.types.ObjectWrapper
+  (local-date-time [this] (local-date-time @this))
+  (local-date-time [this param] (local-date-time @this param))
+  clojure.lang.Keyword
+  (local-date-time [this] (if (= this :now)
+                              (wrap (LocalDateTime/now))
+                              (wrap (fields/local-date-times this))))
+  java.time.LocalDate
+  (local-date-time [this param] (wrap (LocalDateTime/of this (unwrap param))))
+  java.time.Instant
+  (local-date-time [this param]
+    (wrap (LocalDateTime/ofInstant this @(zone-id param))))
+  java.time.temporal.TemporalAccessor
+  (local-date-time [this] (wrap (LocalDateTime/from this)))
+  java.time.Clock
+  (local-date-time [this] (wrap (LocalDateTime/now this)))
+  java.time.ZoneId
+  (local-date-time [this] (wrap (LocalDateTime/now this)))
+  java.lang.String
+  (local-date-time ([this] (wrap (LocalDateTime/parse this)))
+                   ([this param]
+                    (wrap (LocalDateTime/parse this (unwrap param)))))
+  java.lang.Integer
+  (local-date-time ([year month day hour minute]
+                    (wrap (LocalDateTime/of year month day hour minute)))
+                   ([year month day hour minute second]
+                    (wrap (LocalDateTime/of year month day hour minute second)))
+                   ([year month day hour minute second nanosecond]
+                    (wrap (LocalDateTime/of year month day hour minute second
+                                            nanosecond)))))
+
 (defn offset-date-time?
   "Returns true if the given value is a date-time with a zone offset."
   [x] (wrapped-instance? OffsetDateTime x))
 
+(defprotocol IOffsetDateTime
+  (offset-date-time [this] [this param] [date time offset]
+                    [year month day hour minute second nanosecond offset]))
+
+(extend-protocol IOffsetDateTime
+  guangyin.internal.types.ObjectWrapper
+  (offset-date-time [this] (offset-date-time @this))
+  (offset-date-time [this param] (offset-date-time @this param))
+  (offset-date-time [date time offset] (offset-date-time @date time offset))
+  clojure.lang.Keyword
+  (offset-date-time [this] (if (= this :now)
+                               (wrap (OffsetDateTime/now))
+                               (wrap (fields/offset-date-times this))))
+  java.time.LocalDateTime
+  (offset-date-time [this param]
+    (wrap (OffsetDateTime/of this @(zone-offset param))))
+  java.time.LocalDate
+  (offset-date-time [date time offset]
+    (wrap (OffsetDateTime/of date (unwrap time) @(zone-offset offset))))
+  java.time.Instant
+  (offset-date-time [this param]
+    (wrap (OffsetDateTime/ofInstant this @(zone-id param))))
+  java.time.temporal.TemporalAccessor
+  (offset-date-time [this] (wrap (OffsetDateTime/from this)))
+  java.time.Clock
+  (offset-date-time [this] (wrap (OffsetDateTime/now this)))
+  java.time.ZoneId
+  (offset-date-time [this] (wrap (OffsetDateTime/now this)))
+  java.lang.String
+  (offset-date-time ([this] (wrap (OffsetDateTime/parse this)))
+                    ([this param]
+                     (wrap (OffsetDateTime/parse this (unwrap param)))))
+  java.lang.Integer
+  (offset-date-time ([year month day hour minute second nanosecond offset]
+                     (wrap (OffsetDateTime/of year month day hour minute second
+                                              nanosecond
+                                              @(zone-offset offset))))))
+
 (defn zoned-date-time?
   "Returns true if the given value is a date-time with a time zone."
   [x] (wrapped-instance? ZonedDateTime x))
+
+(defprotocol IZonedDateTime
+  (zoned-date-time [this] [this param] [date time zone]
+                   [year month day hour minute second nanosecond zone]))
+
+(extend-protocol IZonedDateTime
+  guangyin.internal.types.ObjectWrapper
+  (zoned-date-time [this] (zoned-date-time @this))
+  (zoned-date-time [this param] (zoned-date-time @this param))
+  (zoned-date-time [date time zone] (zoned-date-time @date time zone))
+  clojure.lang.Keyword
+  (zoned-date-time [this] (when (= this :now)
+                                (wrap (ZonedDateTime/now))))
+  java.time.LocalDateTime
+  (zoned-date-time [this param]
+    (wrap (ZonedDateTime/of this @(zone-id param))))
+  java.time.LocalDate
+  (zoned-date-time [date time zone]
+    (wrap (ZonedDateTime/of date (unwrap time) @(zone-id zone))))
+  java.time.Instant
+  (zoned-date-time [this param]
+    (wrap (ZonedDateTime/ofInstant this @(zone-id param))))
+  java.time.temporal.TemporalAccessor
+  (zoned-date-time [this] (wrap (ZonedDateTime/from this)))
+  java.time.Clock
+  (zoned-date-time [this] (wrap (ZonedDateTime/now this)))
+  java.time.ZoneId
+  (zoned-date-time [this] (wrap (ZonedDateTime/now this)))
+  java.lang.String
+  (zoned-date-time ([this] (wrap (ZonedDateTime/parse this)))
+                    ([this param]
+                     (wrap (ZonedDateTime/parse this (unwrap param)))))
+  java.lang.Integer
+  (zoned-date-time ([year month day hour minute second nanosecond zone]
+                     (wrap (ZonedDateTime/of year month day hour minute second
+                                              nanosecond @(zone-id zone))))))
 
 (defn year?
   "Returns true if the given value is an exact year."
@@ -435,105 +546,6 @@
   ([prefix offset]
    (wrap
      (ZoneId/ofOffset prefix offset))))
-
-(defn local-date-time
-  ([]
-   (wrap
-     (LocalDateTime/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid local-date-time: " x)
-       local-date-time? x
-       clock? (LocalDateTime/now x)
-       zone-id? (LocalDateTime/now x)
-       string? (LocalDateTime/parse x)
-       keyword? (fields/local-date-times x)
-       :else (LocalDateTime/from x))))
-  ([date-or-instant-or-text time-or-zone-or-formatter]
-   (wrap
-     (pred-cond date-or-instant-or-text
-       local-date? (LocalDateTime/of
-                     date-or-instant-or-text
-                     time-or-zone-or-formatter)
-       instant? (LocalDateTime/ofInstant
-                  date-or-instant-or-text
-                  (zone-id time-or-zone-or-formatter))
-       :else (LocalDateTime/parse
-               date-or-instant-or-text
-               time-or-zone-or-formatter))))
-  ([year month day-of-month hour minute]
-   (wrap
-     (LocalDateTime/of year month day-of-month hour minute)))
-  ([year month day-of-month hour minute second]
-   (wrap
-     (LocalDateTime/of year month day-of-month hour minute second)))
-  ([year month day-of-month hour minute second nano-of-second]
-   (wrap
-     (LocalDateTime/of year month day-of-month hour minute second
-                       nano-of-second))))
-
-(defn offset-date-time
-  ([]
-   (wrap
-     (OffsetDateTime/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid offset-date-time: " x)
-       offset-date-time? x
-       clock? (OffsetDateTime/now x)
-       zone-id? (OffsetDateTime/now x)
-       string? (OffsetDateTime/parse x)
-       keyword? (fields/offset-date-times x)
-       :else (OffsetDateTime/from x))))
-  ([date-time-or-instant-or-text offset-or-zone-or-formatter]
-   (wrap
-     (pred-cond date-time-or-instant-or-text
-       local-date-time? (OffsetDateTime/of
-                          date-time-or-instant-or-text
-                          (zone-offset offset-or-zone-or-formatter))
-       instant? (OffsetDateTime/ofInstant
-                  date-time-or-instant-or-text
-                  (zone-id offset-or-zone-or-formatter))
-       :else (OffsetDateTime/parse
-               date-time-or-instant-or-text
-               offset-or-zone-or-formatter))))
-  ([date time offset]
-   (wrap
-     (OffsetDateTime/of date time offset)))
-  ([year month day-of-month hour minute second nano-of-second offset]
-   (wrap
-     (OffsetDateTime/of year month day-of-month hour minute second
-                        nano-of-second offset))))
-
-(defn zoned-date-time
-  ([]
-   (wrap
-     (ZonedDateTime/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid zoned-date-time: " x)
-       zoned-date-time? x
-       clock? (ZonedDateTime/now x)
-       zone-id? (ZonedDateTime/now x)
-       string? (ZonedDateTime/parse x)
-       :else (ZonedDateTime/from x))))
-  ([date-time-or-instant-or-text zone-or-formatter]
-   (wrap
-     (pred-cond date-time-or-instant-or-text
-       local-date-time? (ZonedDateTime/of
-                          date-time-or-instant-or-text
-                          (zone-id zone-or-formatter))
-       instant? (ZonedDateTime/ofInstant
-                  date-time-or-instant-or-text
-                  (zone-id zone-or-formatter))
-       :else (ZonedDateTime/parse
-               date-time-or-instant-or-text
-               zone-or-formatter))))
-  ([local-date-time zone preferred-zone]
-   (ZonedDateTime/ofLocal local-date-time zone preferred-zone))
-  ([year month day-of-month hour minute second nano-of-second zone]
-   (ZonedDateTime/of year month day-of-month hour minute second nano-of-second
-                     zone)))
 
 (defn year
   ([]

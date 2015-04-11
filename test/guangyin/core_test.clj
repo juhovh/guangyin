@@ -38,13 +38,13 @@
   (new-date-time-tests offset-time? offset-time "10:15:30+01:00"))
 
 (deftest test-local-date-time
-  (date-time-tests local-date-time? local-date-time "2011-12-03T10:15:30"))
+  (new-date-time-tests local-date-time? local-date-time "2011-12-03T10:15:30"))
 
 (deftest test-offset-date-time
-  (date-time-tests offset-date-time? offset-date-time "2011-12-03T10:15:30+01:00"))
+  (new-date-time-tests offset-date-time? offset-date-time "2011-12-03T10:15:30+01:00"))
 
 (deftest test-zoned-date-time
-  (date-time-tests zoned-date-time? zoned-date-time)
+  (new-date-time-tests zoned-date-time? zoned-date-time)
   (is (zoned-date-time? (zoned-date-time "2011-12-03T10:15:30+01:00[Europe/Paris]")))
   (is (zoned-date-time? (zoned-date-time "2011-12-03T10:15:30+01:00[Europe/Paris]" DateTimeFormatter/ISO_DATE_TIME))))
   
