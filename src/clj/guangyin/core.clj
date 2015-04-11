@@ -1,8 +1,7 @@
 (ns guangyin.core
   "The core namespace for basic date and time handling."
   (:require [guangyin.internal.fields :as fields]
-            [guangyin.internal.types :refer :all]
-            [guangyin.internal.utils :refer :all])
+            [guangyin.internal.types :refer :all])
   (:import (java.time Clock Duration Instant LocalDate LocalDateTime LocalTime
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
                       ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)))
@@ -588,6 +587,36 @@
      false"
   [x] (wrapped-instance? ZoneId x))
 
+(defprotocol IZoneId
+  (zone-id [this] [this param]
+   "Create zone-id from values.
+    If created from prefix and offset, the valid prefix values are \"GMT\",
+    \"UTC\", \"UT\" and \"\". This is usually not very useful and should be
+    avoided unless necessary.
+    Examples:
+
+      => (zone-id) ; Current zone
+      #<ZoneRegion Europe/Helsinki>
+      => (zone-id \"America/New_York\")
+      #<ZoneRegion America/New_York>
+      => (zone-id (zoned-date-time)) ; Zone from date-time
+      #<ZoneRegion Europe/Helsinki>
+      => (zone-id \"UTC\" (zone-offset \"+08:00\")) ; For completeness
+      #<ZoneRegion UTC+08:00>"))
+
+(extend-protocol IZoneId
+  guangyin.internal.types.ObjectWrapper
+  (zone-id [this] (zone-id @this))
+  clojure.lang.Keyword
+  (zone-id [this] (when (= this :default)
+                        (wrap (ZoneId/systemDefault))))
+  java.time.temporal.TemporalAccessor
+  (zone-id [this] (wrap (ZoneId/from this)))
+  java.lang.String
+  (zone-id ([this] (wrap (ZoneId/of this)))
+           ([prefix offset]
+            (wrap (ZoneId/ofOffset prefix @(zone-offset offset))))))
+
 (defn zone-offset?
   "Returns true if the given value is a zone offset.
    Examples:
@@ -598,113 +627,81 @@
      false"
   [x] (wrapped-instance? ZoneOffset x))
 
+(defprotocol IZoneOffset
+  (zone-offset [this] [hours minutes]
+   "Coerce to zone-offset.
+    Getting current offset can be found using offset-time, however for current
+    zone zone-id should usually be used instead of zone-offset. Examples:
+    Examples:
+
+      => (zone-offset \"+02:00\")
+      #<ZoneOffset +02:00>
+      => (zone-offset :utc)
+      #<ZoneOffset Z>
+      => (zone-offset (hours -10))
+      #<ZoneOffset -10:00>
+      => (zone-offset (offset-time)) ; Current offset
+      #<ZoneOffset +03:00>"))
+
+(extend-protocol IZoneOffset
+  guangyin.internal.types.ObjectWrapper
+  (zone-offset [this] (zone-offset @this))
+  clojure.lang.Keyword
+  (zone-offset [this] (wrap (fields/zone-offsets this)))
+  java.time.temporal.TemporalAccessor
+  (zone-offset [this] (wrap (ZoneOffset/from this)))
+  java.lang.String
+  (zone-offset [this] (wrap (ZoneOffset/of this)))
+  java.lang.Integer
+  (zone-offset ([this] (wrap (ZoneOffset/ofHours this)))
+               ([hours minutes]
+                (wrap (ZoneOffset/ofHoursMinutes hours minutes)))))
+
 (defn clock?
   "Returns true if the given value is a clock instance."
   [x] (wrapped-instance? Clock x))
 
-(defn zone-offset
-  "Coerce to zone-offset.
-   Getting current offset can be found using offset-time, however for current
-   zone zone-id should usually be used instead of zone-offset. Examples:
-   Examples:
-
-     => (zone-offset \"+02:00\")
-     #<ZoneOffset +02:00>
-     => (zone-offset :utc)
-     #<ZoneOffset Z>
-     => (zone-offset (hours -10))
-     #<ZoneOffset -10:00>
-     => (zone-offset (offset-time)) ; Current offset
-     #<ZoneOffset +03:00>"
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid zone-offset: " x)
-       zone-offset? x
-       string? (ZoneOffset/of x)
-       keyword? (fields/zone-offsets x)
-       duration? (ZoneOffset/ofTotalSeconds (/ (.toMillis x) 1000))
-       :else (ZoneOffset/from x)))))
-
-(defn zone-id
-  "Create zone-id from values.
-   If created from prefix and offset, the valid prefix values are \"GMT\",
-   \"UTC\", \"UT\" and \"\". This is usually not very useful and should be
-   avoided unless necessary.
-   Examples:
-
-     => (zone-id) ; Current zone
-     #<ZoneRegion Europe/Helsinki>
-     => (zone-id \"America/New_York\")
-     #<ZoneRegion America/New_York>
-     => (zone-id (zoned-date-time)) ; Zone from date-time
-     #<ZoneRegion Europe/Helsinki>
-     => (zone-id \"UTC\" (zone-offset \"+08:00\")) ; For completeness
-     #<ZoneRegion UTC+08:00>"
-  ([]
-   (wrap
-     (ZoneId/systemDefault)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid zone-id: " x)
-       zone-id? x
-       string? (ZoneId/of x)
-       :else (ZoneId/from x))))
-  ([prefix offset]
-   (wrap
-     (ZoneId/ofOffset prefix offset))))
-
 (defn clock
   ([]
-   (wrap
-     (Clock/systemDefaultZone)))
+   (wrap (Clock/systemDefaultZone)))
   ([x]
-   (wrap
-     (Clock/system (zone-id x))))
+   (wrap (Clock/system (zone-id x))))
   ([instant-or-clock zone-or-duration]
-   (wrap
-     (if (instant? instant-or-clock) 
-         (Clock/fixed instant-or-clock (zone-id zone-or-duration))
-         (Clock/offset instant-or-clock (duration zone-or-duration))))))
+   (wrap (if (instant? instant-or-clock)
+             (Clock/fixed instant-or-clock (zone-id zone-or-duration))
+             (Clock/offset instant-or-clock (duration zone-or-duration))))))
 
 (defn years
   [years]
-  (wrap
-    (Period/ofYears years)))
+  (wrap (Period/ofYears years)))
 
 (defn months
   [months]
-  (wrap
-    (Period/ofMonths months)))
+  (wrap (Period/ofMonths months)))
 
 (defn weeks
   [weeks]
-  (wrap
-    (Period/ofWeeks weeks)))
+  (wrap (Period/ofWeeks weeks)))
 
 (defn days
   [days]
-  (wrap
-    (Period/ofDays days)))
+  (wrap (Period/ofDays days)))
 
 (defn hours
   [hours]
-  (wrap
-    (Duration/ofHours hours)))
+  (wrap (Duration/ofHours hours)))
 
 (defn minutes
   [minutes]
-  (wrap
-    (Duration/ofMinutes minutes)))
+  (wrap (Duration/ofMinutes minutes)))
 
 (defn seconds
   [seconds]
-  (wrap
-    (Duration/ofSeconds seconds)))
+  (wrap (Duration/ofSeconds seconds)))
 
 (defn nanos
   [nanos]
-  (wrap
-    (Duration/ofNanos nanos)))
+  (wrap (Duration/ofNanos nanos)))
 
 (defn plus
   ([] 0)
