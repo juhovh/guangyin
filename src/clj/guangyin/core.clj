@@ -193,7 +193,7 @@
   java.lang.String
   (local-date ([this] (wrap (LocalDate/parse this)))
               ([this param] (wrap (LocalDate/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (local-date [year month day] (wrap (LocalDate/of year month day))))
 
 (defn local-time?
@@ -249,7 +249,7 @@
   java.lang.String
   (local-time ([this] (wrap (LocalTime/parse this)))
               ([this param] (wrap (LocalTime/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (local-time ([hour minute] (wrap (LocalTime/of hour minute)))
               ([hour minute second] (wrap (LocalTime/of hour minute second)))
               ([hour minute second nanosecond]
@@ -310,7 +310,7 @@
   java.lang.String
   (offset-time ([this] (wrap (OffsetTime/parse this)))
                ([this param] (wrap (OffsetTime/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (offset-time ([hour minute second nanosecond offset]
                 (wrap (OffsetTime/of hour minute second nanosecond offset)))))
 
@@ -346,7 +346,7 @@
   (local-date-time ([this] (wrap (LocalDateTime/parse this)))
                    ([this param]
                     (wrap (LocalDateTime/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (local-date-time ([year month day hour minute]
                     (wrap (LocalDateTime/of year month day hour minute)))
                    ([year month day hour minute second]
@@ -391,7 +391,7 @@
   (offset-date-time ([this] (wrap (OffsetDateTime/parse this)))
                     ([this param]
                      (wrap (OffsetDateTime/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (offset-date-time ([year month day hour minute second nanosecond offset]
                      (wrap (OffsetDateTime/of year month day hour minute second
                                               nanosecond
@@ -432,7 +432,7 @@
   (zoned-date-time ([this] (wrap (ZonedDateTime/parse this)))
                    ([this param]
                     (wrap (ZonedDateTime/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (zoned-date-time ([year month day hour minute second nanosecond zone]
                      (wrap (ZonedDateTime/of year month day hour minute second
                                               nanosecond @(zone-id zone))))))
@@ -461,7 +461,7 @@
   java.lang.String
   (year ([this] (wrap (Year/parse this)))
         ([this param] (wrap (Year/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (year [this] (Year/of this)))
 
 (defn year-month?
@@ -486,7 +486,7 @@
   java.lang.String
   (year-month ([this] (wrap (YearMonth/parse this)))
               ([this param] (wrap (YearMonth/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (year-month [year month] (YearMonth/of year month)))
 
 (defn month?
@@ -515,7 +515,7 @@
   (month [this] (wrap (Month/from (LocalDate/now this))))
   java.time.ZoneId
   (month [this] (wrap (Month/from (LocalDate/now this))))
-  java.lang.Integer
+  java.lang.Long
   (month [this] (Month/of this)))
 
 (defn month-day?
@@ -543,7 +543,7 @@
   java.lang.String
   (month-day ([this] (wrap (MonthDay/parse this)))
              ([this param] (wrap (MonthDay/parse this (unwrap param)))))
-  java.lang.Integer
+  java.lang.Long
   (month-day [month day] (MonthDay/of month day)))
 
 (defn day-of-week?
@@ -572,7 +572,7 @@
   (day-of-week [this] (wrap (DayOfWeek/from (LocalDate/now this))))
   java.time.ZoneId
   (day-of-week [this] (wrap (DayOfWeek/from (LocalDate/now this))))
-  java.lang.Integer
+  java.lang.Long
   (day-of-week [this] (DayOfWeek/of this)))
 
 (defn zone-id?
@@ -652,7 +652,7 @@
   (zone-offset [this] (wrap (ZoneOffset/from this)))
   java.lang.String
   (zone-offset [this] (wrap (ZoneOffset/of this)))
-  java.lang.Integer
+  java.lang.Long
   (zone-offset ([this] (wrap (ZoneOffset/ofHours this)))
                ([hours minutes]
                 (wrap (ZoneOffset/ofHoursMinutes hours minutes)))))
