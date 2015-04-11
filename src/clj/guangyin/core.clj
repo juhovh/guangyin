@@ -431,8 +431,8 @@
   (zoned-date-time [this] (wrap (ZonedDateTime/now this)))
   java.lang.String
   (zoned-date-time ([this] (wrap (ZonedDateTime/parse this)))
-                    ([this param]
-                     (wrap (ZonedDateTime/parse this (unwrap param)))))
+                   ([this param]
+                    (wrap (ZonedDateTime/parse this (unwrap param)))))
   java.lang.Integer
   (zoned-date-time ([year month day hour minute second nanosecond zone]
                      (wrap (ZonedDateTime/of year month day hour minute second
@@ -442,9 +442,53 @@
   "Returns true if the given value is an exact year."
   [x] (wrapped-instance? Year x))
 
+(defprotocol IYear
+  (year [this] [this param]))
+
+(extend-protocol IYear
+  guangyin.internal.types.ObjectWrapper
+  (year [this] (year @this))
+  (year [this param] (year @this param))
+  clojure.lang.Keyword
+  (year [this] (if (= this :now)
+                   (wrap (Year/now))
+                   (wrap (fields/years this))))
+  java.time.temporal.TemporalAccessor
+  (year [this] (wrap (Year/from this)))
+  java.time.Clock
+  (year [this] (wrap (Year/now this)))
+  java.time.ZoneId
+  (year [this] (wrap (Year/now this)))
+  java.lang.String
+  (year ([this] (wrap (Year/parse this)))
+        ([this param] (wrap (Year/parse this (unwrap param)))))
+  java.lang.Integer
+  (year [this] (Year/of this)))
+
 (defn year-month?
   "Returns true if the given value is a combination of year and month."
   [x] (wrapped-instance? YearMonth x))
+
+(defprotocol IYearMonth
+  (year-month [this] [year month]))
+
+(extend-protocol IYearMonth
+  guangyin.internal.types.ObjectWrapper
+  (year-month [this] (year-month @this))
+  clojure.lang.Keyword
+  (year-month [this] (when (= this :now)
+                           (wrap (YearMonth/now))))
+  java.time.temporal.TemporalAccessor
+  (year-month [this] (wrap (YearMonth/from this)))
+  java.time.Clock
+  (year-month [this] (wrap (YearMonth/now this)))
+  java.time.ZoneId
+  (year-month [this] (wrap (YearMonth/now this)))
+  java.lang.String
+  (year-month ([this] (wrap (YearMonth/parse this)))
+              ([this param] (wrap (YearMonth/parse this (unwrap param)))))
+  java.lang.Integer
+  (year-month [year month] (YearMonth/of year month)))
 
 (defn month?
   "Returns true if the given value is an exact month.
@@ -456,9 +500,52 @@
      false"
   [x] (wrapped-instance? Month x))
 
+(defprotocol IMonth
+  (month [this]))
+
+(extend-protocol IMonth
+  guangyin.internal.types.ObjectWrapper
+  (month [this] (month @this))
+  clojure.lang.Keyword
+  (month [this] (if (= this :now)
+                    (wrap (Month/from (LocalDate/now)))
+                    (wrap (fields/months this))))
+  java.time.temporal.TemporalAccessor
+  (month [this] (wrap (Month/from this)))
+  java.time.Clock
+  (month [this] (wrap (Month/from (LocalDate/now this))))
+  java.time.ZoneId
+  (month [this] (wrap (Month/from (LocalDate/now this))))
+  java.lang.Integer
+  (month [this] (Month/of this)))
+
 (defn month-day?
   "Returns true if the given value is a combination of month and day of month."
   [x] (wrapped-instance? MonthDay x))
+
+(defprotocol IMonthDay
+  (month-day [this] [month day]))
+
+(extend-protocol IMonthDay
+  guangyin.internal.types.ObjectWrapper
+  (month-day [this] (month-day @this))
+  (month-day [month day] (month-day @month day))
+  clojure.lang.Keyword
+  (month-day [this] (when (= this :now)
+                          (wrap (MonthDay/now))))
+  java.time.Month
+  (month-day [month day] (wrap (MonthDay/of month day)))
+  java.time.temporal.TemporalAccessor
+  (month-day [this] (wrap (MonthDay/from this)))
+  java.time.Clock
+  (month-day [this] (wrap (MonthDay/now this)))
+  java.time.ZoneId
+  (month-day [this] (wrap (MonthDay/now this)))
+  java.lang.String
+  (month-day ([this] (wrap (MonthDay/parse this)))
+             ([this param] (wrap (MonthDay/parse this (unwrap param)))))
+  java.lang.Integer
+  (month-day [month day] (MonthDay/of month day)))
 
 (defn day-of-week?
   "Returns true if the given value is an exact day of week.
@@ -469,6 +556,25 @@
      => (day-of-week? (days 5))
      false"
   [x] (wrapped-instance? DayOfWeek x))
+
+(defprotocol IDayOfWeek
+  (day-of-week [this]))
+
+(extend-protocol IDayOfWeek
+  guangyin.internal.types.ObjectWrapper
+  (day-of-week [this] (day-of-week @this))
+  clojure.lang.Keyword
+  (day-of-week [this] (if (= this :now)
+                          (wrap (DayOfWeek/from (LocalDate/now)))
+                          (wrap (fields/day-of-weeks this))))
+  java.time.temporal.TemporalAccessor
+  (day-of-week [this] (wrap (DayOfWeek/from this)))
+  java.time.Clock
+  (day-of-week [this] (wrap (DayOfWeek/from (LocalDate/now this))))
+  java.time.ZoneId
+  (day-of-week [this] (wrap (DayOfWeek/from (LocalDate/now this))))
+  java.lang.Integer
+  (day-of-week [this] (DayOfWeek/of this)))
 
 (defn zone-id?
   "Returns true if the given value is a time zone.
@@ -546,82 +652,6 @@
   ([prefix offset]
    (wrap
      (ZoneId/ofOffset prefix offset))))
-
-(defn year
-  ([]
-   (wrap
-     (Year/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid year: " x)
-       year? x
-       clock? (Year/now x)
-       zone-id? (Year/now x)
-       integer? (Year/of x)
-       string? (Year/parse x)
-       keyword? (fields/years x)
-       :else (Year/from x))))
-  ([text formatter]
-   (wrap
-     (Year/parse text formatter))))
-
-(defn year-month
-  ([]
-   (wrap
-     (YearMonth/now)))
-  ([x]
-   (wrap
-     (pred-cond x
-       year-month? x
-       clock? (YearMonth/now x)
-       zone-id? (YearMonth/now x)
-       string? (YearMonth/parse x)
-       :else (YearMonth/from x))))
-  ([year-or-text month-or-formatter]
-   (wrap
-     (if (integer? year-or-text)
-         (YearMonth/of year-or-text month-or-formatter)
-         (YearMonth/parse year-or-text month-or-formatter)))))
-
-(defn month
-  ([]
-   (Month/of (:month-of-year (local-date :now))))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid month: " x)
-       month? x
-       integer? (Month/of x)
-       keyword? (fields/months x)
-       :else (Month/of (:month-of-year (local-date x)))))))
-
-(defn month-day
-  ([]
-   (wrap
-     (MonthDay/now)))
-  ([x]
-   (wrap
-     (pred-cond x
-       month-day? x
-       clock? (MonthDay/now x)
-       zone-id? (MonthDay/now x)
-       string? (MonthDay/parse x)
-       :else (MonthDay/from x))))
-  ([month-or-text day-or-formatter]
-   (wrap
-     (if (integer? month-or-text)
-         (MonthDay/of month-or-text day-or-formatter)
-         (MonthDay/parse month-or-text day-or-formatter)))))
-
-(defn day-of-week
-  ([]
-   (DayOfWeek/of (:day-of-week (local-date :now))))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid day-of-week: " x)
-       day-of-week? x
-       integer? (DayOfWeek/of x)
-       keyword? (fields/day-of-weeks x)
-       :else (DayOfWeek/of (:day-of-week (local-date x)))))))
 
 (defn clock
   ([]
