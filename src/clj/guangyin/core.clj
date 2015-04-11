@@ -678,15 +678,15 @@
 
 (defn plus
   ([] 0)
-  ([x] x)
-  ([x y] (.plus x y))
+  ([x] (wrap x))
+  ([x y] (wrap (.plus (unwrap x) (unwrap y))))
   ([x y & more]
-   (reduce plus (.plus x y) more)))
+   (reduce plus (.plus (unwrap x) (unwrap y) more))))
 
 (defn minus
   ([] 0)
   ([x] x)
-  ([x y] (.add x y))
+  ([x y] (wrap (.minus (unwrap x) (unwrap y))))
   ([x y & more]
-   (reduce minus (.minus x y) more)))
+   (reduce minus (.minus (unwrap x) (unwrap y)) more)))
 
