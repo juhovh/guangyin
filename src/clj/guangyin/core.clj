@@ -7,6 +7,8 @@
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
                       ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)))
 
+(declare zone-id zone-offset)
+
 (defn instant?
   "Returns true if the given value is an instant.
    Examples:
@@ -258,6 +260,61 @@
   "Returns true if the given value is a time with a zone offset."
   [x] (wrapped-instance? OffsetTime x))
 
+(defprotocol IOffsetTime
+  (offset-time [this] [this param] [hour minute second nanosecond offset]
+   "Coerce to time with offset.
+    Can also be used to parse a time with offset using a custom formatter, or to
+    create a time with offset from hours, minutes, seconds and nanoseconds.
+    Examples:
+
+      => (offset-time :now) ; Current time with offset
+      #<OffsetTime 12:15:00.123+03:00>
+      => (offset-time (clock))
+      #<OffsetTime 12:15:00.123+03:00>
+      => (offset-time (zone-id \"Asia/Shanghai\"))
+      #<OffsetTime 17:15:00.123+08:00>
+      => (offset-time \"12:15:00.123+03:00\")
+      #<OffsetTime 12:15:00.123+03:00>
+      => (offset-time :max)
+      #<OffsetTime 23:59:59.999999999-18:00>
+      => (offset-time (offset-date-time))
+      #<OffsetTime 12:15:00.123+03:00>
+      => (offset-time (local-time 12 15) (zone-offset (hours 3)))
+      #<OffsetTime 12:15+03:00>
+      => (offset-time (instant) (zone-id \"Europe/Helsinki\"))
+      #<OffsetTime 12:15:00.123+03:00>
+      => (offset-time \"12.15+0300\" (date-time-formatter \"HH.mmx\"))
+      #<OffsetTime 12:15+03:00>
+      => (offset-time 12 15 0 123000000 (zone-offset (hours 3)))
+      #<OffsetTime 12:15:00.123+03:00>"))
+
+(extend-protocol IOffsetTime
+  guangyin.internal.types.ObjectWrapper
+  (offset-time [this] (offset-time @this))
+  (offset-time [this param] (offset-time @this param))
+  clojure.lang.Keyword
+  (offset-time [this] (if (= this :now)
+                         (wrap (OffsetTime/now))
+                         (wrap (fields/offset-times this))))
+  java.time.LocalTime
+  (offset-time [this param]
+    (wrap (OffsetTime/of this @(zone-offset param))))
+  java.time.Instant
+  (offset-time [this param]
+    (wrap (OffsetTime/ofInstant this @(zone-id param))))
+  java.time.temporal.TemporalAccessor
+  (offset-time [this] (wrap (OffsetTime/from this)))
+  java.time.Clock
+  (offset-time [this] (wrap (OffsetTime/now this)))
+  java.time.ZoneId
+  (offset-time [this] (wrap (OffsetTime/now this)))
+  java.lang.String
+  (offset-time ([this] (wrap (OffsetTime/parse this)))
+               ([this param] (wrap (OffsetTime/parse this (unwrap param)))))
+  java.lang.Integer
+  (offset-time ([hour minute second nanosecond offset]
+                (wrap (OffsetTime/of hour minute second nanosecond offset)))))
+
 (defn local-date-time?
   "Returns true if the given value is a local date-time."
   [x] (wrapped-instance? LocalDateTime x))
@@ -378,60 +435,6 @@
   ([prefix offset]
    (wrap
      (ZoneId/ofOffset prefix offset))))
-
-(defn offset-time
-  "Coerce to time with offset.
-   Can also be used to parse a time with offset using a custom formatter, or to
-   create a time with offset from hours, minutes, seconds and nanoseconds.
-   Examples:
-
-     => (offset-time) ; Current time with offset
-     #<OffsetTime 12:15:00.123+03:00>
-     => (offset-time (clock))
-     #<OffsetTime 12:15:00.123+03:00>
-     => (offset-time (zone-id \"Asia/Shanghai\"))
-     #<OffsetTime 17:15:00.123+08:00>
-     => (offset-time \"12:15:00.123+03:00\")
-     #<OffsetTime 12:15:00.123+03:00>
-     => (offset-time :max)
-     #<OffsetTime 23:59:59.999999999-18:00>
-     => (offset-time (offset-date-time))
-     #<OffsetTime 12:15:00.123+03:00>
-     => (offset-time (local-time 12 15) (zone-offset (hours 3)))
-     #<OffsetTime 12:15+03:00>
-     => (offset-time (instant) (zone-id \"Europe/Helsinki\"))
-     #<OffsetTime 12:15:00.123+03:00>
-     => (offset-time \"12.15+0300\" (date-time-formatter \"HH.mmx\"))
-     #<OffsetTime 12:15+03:00>
-     => (offset-time 12 15 0 123000000 (zone-offset (hours 3)))
-     #<OffsetTime 12:15:00.123+03:00>"
-  ([]
-   (wrap
-     (OffsetTime/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid offset-time: " x)
-       offset-time? x
-       clock? (OffsetTime/now x)
-       zone-id? (OffsetTime/now x)
-       string? (OffsetTime/parse x)
-       keyword? (fields/offset-times x)
-       :else (OffsetTime/from x))))
-  ([time-or-instant-or-text offset-or-zone-or-formatter]
-   (wrap
-     (pred-cond time-or-instant-or-text
-       local-time? (OffsetTime/of
-                     time-or-instant-or-text
-                     (zone-offset offset-or-zone-or-formatter))
-       instant? (OffsetTime/ofInstant
-                  time-or-instant-or-text
-                  (zone-id offset-or-zone-or-formatter))
-       :else (OffsetTime/parse
-               time-or-instant-or-text
-               offset-or-zone-or-formatter))))
-  ([hour minute second nano-of-second offset]
-   (wrap
-     (OffsetTime/of hour minute second nano-of-second (zone-offset offset)))))
 
 (defn local-date-time
   ([]

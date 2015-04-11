@@ -35,7 +35,7 @@
   (new-date-time-tests local-time? local-time "10:15:30"))
 
 (deftest test-offset-time
-  (date-time-tests offset-time? offset-time "10:15:30+01:00"))
+  (new-date-time-tests offset-time? offset-time "10:15:30+01:00"))
 
 (deftest test-local-date-time
   (date-time-tests local-date-time? local-date-time "2011-12-03T10:15:30"))
