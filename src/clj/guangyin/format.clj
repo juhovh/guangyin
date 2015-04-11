@@ -1,42 +1,24 @@
 (ns guangyin.format
   "The format namespace for date and time formatting."
   (:require [guangyin.internal.fields :as fields]
-            [guangyin.internal.utils :refer :all])
+            [guangyin.internal.types :refer :all])
   (:import (java.time.format DateTimeFormatter)))
 
 (defn date-time-formatter?
   "Returns true if the given value is a date time formatter."
-  [x] (instance? DateTimeFormatter x))
+  [x] (instance? DateTimeFormatter (unwrap x)))
 
-(defn date-time-formatter
-  ([x]
-   (pred-cond-throw x (str "Invalid format: " x)
-     date-time-formatter? x
-     string? (DateTimeFormatter/ofPattern x)
-     keyword? (fields/date-time-formatters x)))
-  ([pattern-or-type locale-or-style]
-   (if (string? pattern-or-type)
-       (DateTimeFormatter/ofPattern pattern-or-type locale-or-style)
-       (let [f (fields/format-styles locale-or-style)]
-         (when (nil? f)
-           (throw (IllegalArgumentException.
-                    (str "Invalid format style: " locale-or-style))))
-         (case pattern-or-type
-           :date (DateTimeFormatter/ofLocalizedDate f)
-           :time (DateTimeFormatter/ofLocalizedTime f)
-           :date-time (DateTimeFormatter/ofLocalizedDateTime f)
-           (throw (IllegalArgumentException.
-                    (str "Invalid format type: " pattern-or-type)))))))
-  ([type date-style time-style]
-   (let [datef (fields/format-styles date-style)
-         timef (fields/format-styles time-style)]
-     (when-not (= type :date-time)
-       (throw (IllegalArgumentException.
-                (str "Invalid format type: " type)))
-     (when (nil? datef)
-       (throw (IllegalArgumentException.
-                (str "Invalid format style: " date-style))))
-     (when (nil? timef)
-       (throw (IllegalArgumentException.
-                (str "Invalid format style: " time-style))))
-     (DateTimeFormatter/ofLocalizedDateTime date-style time-style)))))
+(defprotocol IDateTimeFormatter
+  (date-time-formatter [this] [this param]))
+
+(extend-protocol IDateTimeFormatter
+  guangyin.internal.types.ObjectWrapper
+  (date-time-formatter [this] (date-time-formatter @this))
+  (date-time-formatter [this param] (date-time-formatter @this param))
+  clojure.lang.Keyword
+  (date-time-formatter [this] (wrap (fields/date-time-formatters this)))
+  java.time.format.DateTimeFormatter
+  (date-time-formatter [this] (wrap this))
+  java.lang.String
+  (date-time-formatter ([this] (DateTimeFormatter/ofPattern this))
+                       ([this param] (DateTimeFormatter/ofPattern this param))))
