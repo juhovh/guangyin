@@ -7,41 +7,156 @@
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
                       ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)))
 
-(defn instant?
-  "Returns true if the given value is an instant.
-   Examples:
+(defprotocol IInstant
+  (instant? [this]
+   "Returns true if the given value is an instant.
+    Examples:
 
-    => (instant? (instant))
-    true
-    => (instant? (days 1))
-    false"
-  [x] (wrapped-instance? Instant x))
-
-(defn duration?
-  "Returns true if the given value is a duration.
-   Duration refers to an exact length of time that can be converted accurately
-   to seconds without any time zone information, basically any length of time
-   that is measured in hours or smaller units than that.
-   Examples:
-
-     => (duration? (hours 1))
+     => (instant? (instant))
      true
-     => (duration? (days 1))
-     false"
-  [x] (wrapped-instance? Duration x))
+     => (instant? (days 1))
+     false")
+  (instant [this]
+   "Coerce to instant.
+    Examples:
 
-(defn period?
-  "Returns true if the given value is a period.
-   Period refers to a length of time that can not be converted accurately to
-   seconds without any time zone information, basically any length of time that
-   is measured in days or larger units than that.
-   Examples:
+      => (instant :now) ; Current instant
+      #<Instant 2015-01-01T12:15:00.123Z>
+      => (instant (clock)) ; Current instant from clock
+      #<Instant 2015-01-01T12:15:00.123Z>
+      => (instant \"2015-01-01T12:15:00.123Z\")
+      #<Instant 2015-01-01T12:15:00.123Z>
+      => (instant :epoch)
+      #<Instant 1970-01-01T00:00:00Z>
+      => (instant (offset-date-time)) ; From date-time containing instant
+      #<Instant 2015-01-01T12:15:00.123Z>"))
 
-     => (period? (weeks 1))
-     true
-     => (period? (minutes 30))
-     false"
-  [x] (wrapped-instance? Period x))
+(extend-protocol IInstant
+  guangyin.internal.types.ObjectWrapper
+  (instant? [this] (instant? @this))
+  (instant [this] (instant @this))
+  clojure.lang.Keyword
+  (instant? [this] false)
+  (instant [this] (if (= this :now)
+                      (wrap (Instant/now))
+                      (wrap (fields/instants this))))
+  java.time.temporal.TemporalAccessor
+  (instant? [this] (instance? Instant this))
+  (instant [this] (wrap (Instant/from this)))
+  java.time.Clock
+  (instant? [this] false)
+  (instant [this] (wrap (Instant/now this)))
+  java.lang.String
+  (instant? [this] false)
+  (instant [this] (wrap (Instant/parse this)))
+  java.lang.Object
+  (instant? [this] false))
+
+(defprotocol IDuration
+  (duration? [this]
+   "Returns true if the given value is a duration.
+    Duration refers to an exact length of time that can be converted accurately
+    to seconds without any time zone information, basically any length of time
+    that is measured in hours or smaller units than that.
+    Examples:
+
+      => (duration? (hours 1))
+      true
+      => (duration? (days 1))
+      false")
+  (duration [this] [this other]
+   "Coerce to duration.
+    Notice that duration is only for exact times, if you are working with dates
+    you most likely want to use a period instead. Can also be used to create a
+    duration from start and end times. See also functions hours, minutes,
+    seconds and nanos, they all return a duration.
+    Examples:
+
+      => (duration \"P2D\") ; 2 days is converted to 48 hours
+      #<Duration PT48H>
+      => (duration \"PT15M\") ; 15 minutes
+      #<Duration PT15M>
+      => (duration \"PT-6H3M\") ; -6 hours and +3 minutes
+      #<Duration PT-5H-57M>
+      => (duration \"-PT6H3M\") ; -6 hours and -3 minutes
+      #<Duration PT-6H-3M>
+      => (duration (instant :epoch) (instant \"2015-01-01T12:15:00.123Z\"))
+      #<Duration PT394476H15M0.123S>
+      => (duration (local-time :midnight) (local-time :noon))
+      #<Duration PT12H>"))
+
+(extend-protocol IDuration
+  guangyin.internal.types.ObjectWrapper
+  (duration? [this] (duration? @this))
+  (duration [this] (duration @this))
+  (duration [this other] (duration @this (unwrap other)))
+  clojure.lang.Keyword
+  (duration? [this] false)
+  (duration [this] (wrap (fields/durations this)))
+  java.time.temporal.Temporal
+  (duration? [this] false)
+  (duration [this other] (wrap (Duration/between this other)))
+  java.time.temporal.TemporalAmount
+  (duration? [this] (instance? Duration this))
+  (duration [this] (wrap (Duration/from this)))
+  java.lang.String
+  (duration? [this] false)
+  (duration [this] (wrap (Duration/parse this)))
+  java.lang.Object
+  (duration? [this] false))
+
+(defprotocol IPeriod
+  (period? [this]
+   "Returns true if the given value is a period.
+    Period refers to a length of time that can not be converted accurately to
+    seconds without any time zone information, basically any length of time that
+    is measured in days or larger units than that.
+    Examples:
+
+      => (period? (weeks 1))
+      true
+      => (period? (minutes 30))
+      false")
+  (period [this] [this other]
+   "Coerce to period.
+    Notice that period is only for days and larger time units. If you want to
+    work with time you should use duration instead. Can also be used to create a
+    period from start and end date. See also functions years, months, weeks and
+    days, they all return a period.
+    Examples:
+
+      => (period \"P2Y\")
+      #<Period P2Y>
+      => (period \"P1Y2M3W4D\")
+      #<Period P1Y2M25D>
+      => (period \"P-1Y2M\")
+      #<Period P-1Y2M>
+      => (period \"-P1Y2M\")
+      #<Period P-1Y-2M>
+      => (period :zero)
+      #<Period P0D>
+      => (period (local-date \"2015-01-01\") (local-date \"2017-04-12\"))
+      #<Period P2Y3M11D>"))
+  
+(extend-protocol IPeriod
+  guangyin.internal.types.ObjectWrapper
+  (period? [this] (period? @this))
+  (period [this] (period @this))
+  (period [this other] (period @this (unwrap other)))
+  clojure.lang.Keyword
+  (period? [this] false)
+  (period [this] (wrap (fields/periods this)))
+  java.time.temporal.TemporalAmount
+  (period? [this] (instance? Period this))
+  (period [this] (wrap (Period/from this)))
+  java.time.LocalDate
+  (period? [this] false)
+  (period [this other] (wrap (Period/between this (unwrap other))))
+  java.lang.String
+  (period? [this] false)
+  (period [this] (wrap (Period/parse this)))
+  java.lang.Object
+  (period? [this] false))
 
 (defn local-date?
   "Returns true if the given value is a local date."
@@ -175,91 +290,6 @@
   ([prefix offset]
    (wrap
      (ZoneId/ofOffset prefix offset))))
-
-(defn instant
-  "Coerce to instant.
-   Examples:
-
-     => (instant) ; Current instant
-     #<Instant 2015-01-01T12:15:00.123Z>
-     => (instant (clock)) ; Current instant from clock
-     #<Instant 2015-01-01T12:15:00.123Z>
-     => (instant \"2015-01-01T12:15:00.123Z\")
-     #<Instant 2015-01-01T12:15:00.123Z>
-     => (instant :epoch)
-     #<Instant 1970-01-01T00:00:00Z>
-     => (instant (offset-date-time)) ; From date-time containing instant
-     #<Instant 2015-01-01T12:15:00.123Z>"
-  ([]
-   (wrap
-     (Instant/now)))
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid instant: " x)
-       clock? (Instant/now x)
-       string? (Instant/parse x)
-       keyword? (fields/instants x)
-       :else (Instant/from x)))))
-
-(defn duration
-  "Coerce to duration.
-   Notice that duration is only for exact times, if you are working with dates
-   you most likely want to use a period instead. Can also be used to create a
-   duration from start and end times. See also functions hours, minutes,
-   seconds and nanos, they all return a duration.
-   Examples:
-
-     => (duration \"P2D\") ; 2 days is converted to 48 hours
-     #<Duration PT48H>
-     => (duration \"PT15M\") ; 15 minutes
-     #<Duration PT15M>
-     => (duration \"PT-6H3M\") ; -6 hours and +3 minutes
-     #<Duration PT-5H-57M>
-     => (duration \"-PT6H3M\") ; -6 hours and -3 minutes
-     #<Duration PT-6H-3M>
-     => (duration (instant :epoch) (instant \"2015-01-01T12:15:00.123Z\"))
-     #<Duration PT394476H15M0.123S>
-     => (duration (local-time :midnight) (local-time :noon))
-     #<Duration PT12H>"
-  ([x]
-   (wrap
-     (if (string? x)
-         (Duration/parse x)
-         (Duration/from x))))
-  ([start-inclusive end-exclusive]
-   (wrap
-     (Duration/between start-inclusive end-exclusive))))
-
-(defn period
-  "Coerce to period.
-   Notice that period is only for days and larger time units. If you want to
-   work with time you should use duration instead. Can also be used to create a
-   period from start and end date. See also functions years, months, weeks and
-   days, they all return a period.
-   Examples:
-
-     => (period \"P2Y\")
-     #<Period P2Y>
-     => (period \"P1Y2M3W4D\")
-     #<Period P1Y2M25D>
-     => (period \"P-1Y2M\")
-     #<Period P-1Y2M>
-     => (period \"-P1Y2M\")
-     #<Period P-1Y-2M>
-     => (period :zero)
-     #<Period P0D>
-     => (period (local-date \"2015-01-01\") (local-date \"2017-04-12\"))
-     #<Period P2Y3M11D>"
-  ([x]
-   (wrap
-     (pred-cond-throw x (str "Invalid period: " x)
-       period? x
-       string? (Period/parse x)
-       keyword? (fields/periods x)
-       :else (Period/from x))))
-  ([start-date-inclusive end-date-exclusive]
-   (wrap
-     (Period/between start-date-inclusive end-date-exclusive))))
 
 (defn local-date
   "Coerce to local date.
