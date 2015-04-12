@@ -32,7 +32,7 @@
       #<Instant 2015-01-01T12:15:00.123Z>
       => (instant :epoch)
       #<Instant 1970-01-01T00:00:00Z>
-      => (instant (offset-date-time)) ; From date-time containing instant
+      => (instant (offset-date-time :now)) ; From date-time containing instant
       #<Instant 2015-01-01T12:15:00.123Z>"))
 
 (extend-protocol IInstant
@@ -169,7 +169,7 @@
       #<LocalDate 2015-04-01>
       => (local-date :max) ; Largest local date, also :min supported
       #<LocalDate +999999999-12-31>
-      => (local-date (offset-date-time))
+      => (local-date (offset-date-time :now))
       #<LocalDate 2015-04-01>
       => (local-date \"01.04.2015\" (date-time-formatter \"dd.MM.yyyy\"))
       #<LocalDate 2015-04-01>
@@ -221,7 +221,7 @@
       #<LocalTime 12:15:00.123>
       => (local-time :noon)
       #<LocalTime 12:00>
-      => (local-time (local-date-time)) ; Time part of local date-time
+      => (local-time (local-date-time :now)) ; Time part of local date-time
       #<LocalTime 12:15:00.123>
       => (local-time \"12.15\" (date-time-formatter \"HH.mm\"))
       #<LocalTime 12:15>
@@ -276,11 +276,11 @@
       #<OffsetTime 12:15:00.123+03:00>
       => (offset-time :max)
       #<OffsetTime 23:59:59.999999999-18:00>
-      => (offset-time (offset-date-time))
+      => (offset-time (offset-date-time :now))
       #<OffsetTime 12:15:00.123+03:00>
       => (offset-time (local-time 12 15) (zone-offset (hours 3)))
       #<OffsetTime 12:15+03:00>
-      => (offset-time (instant) (zone-id \"Europe/Helsinki\"))
+      => (offset-time (instant :now) (zone-id \"Europe/Helsinki\"))
       #<OffsetTime 12:15:00.123+03:00>
       => (offset-time \"12.15+0300\" (date-time-formatter \"HH.mmx\"))
       #<OffsetTime 12:15+03:00>
@@ -595,11 +595,11 @@
     avoided unless necessary.
     Examples:
 
-      => (zone-id) ; Current zone
+      => (zone-id :default) ; Default zone of this computer
       #<ZoneRegion Europe/Helsinki>
       => (zone-id \"America/New_York\")
       #<ZoneRegion America/New_York>
-      => (zone-id (zoned-date-time)) ; Zone from date-time
+      => (zone-id (zoned-date-time :now)) ; Zone from date-time
       #<ZoneRegion Europe/Helsinki>
       => (zone-id \"UTC\" (zone-offset \"+08:00\")) ; For completeness
       #<ZoneRegion UTC+08:00>"))
@@ -640,7 +640,7 @@
       #<ZoneOffset Z>
       => (zone-offset (hours -10))
       #<ZoneOffset -10:00>
-      => (zone-offset (offset-time)) ; Current offset
+      => (zone-offset (offset-time :now)) ; Current offset
       #<ZoneOffset +03:00>"))
 
 (extend-protocol IZoneOffset
