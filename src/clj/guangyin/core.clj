@@ -12,7 +12,7 @@
   "Returns true if the given value is an instant.
    Examples:
 
-    => (instant? (instant))
+    => (instant? (instant :now))
     true
     => (instant? (days 1))
     false"
@@ -87,8 +87,8 @@
 
 (extend-protocol IDuration
   guangyin.internal.types.ObjectWrapper
-  (duration [this] (duration @this))
-  (duration [this other] (duration @this other))
+  (duration ([this] (duration @this))
+            ([this other] (duration @this other)))
   clojure.lang.Keyword
   (duration [this] (wrap (fields/durations this)))
   java.time.temporal.Temporal
@@ -136,8 +136,8 @@
   
 (extend-protocol IPeriod
   guangyin.internal.types.ObjectWrapper
-  (period [this] (period @this))
-  (period [this other] (period @this other))
+  (period ([this] (period @this))
+          ([this other] (period @this other)))
   clojure.lang.Keyword
   (period [this] (wrap (fields/periods this)))
   java.time.temporal.TemporalAmount
@@ -178,8 +178,8 @@
 
 (extend-protocol ILocalDate
   guangyin.internal.types.ObjectWrapper
-  (local-date [this] (local-date @this))
-  (local-date [this param] (local-date @this param))
+  (local-date ([this] (local-date @this))
+              ([this param] (local-date @this param)))
   clojure.lang.Keyword
   (local-date [this] (if (= this :now)
                          (wrap (LocalDate/now))
@@ -234,8 +234,8 @@
 
 (extend-protocol ILocalTime
   guangyin.internal.types.ObjectWrapper
-  (local-time [this] (local-time @this))
-  (local-time [this param] (local-time @this param))
+  (local-time ([this] (local-time @this))
+              ([this param] (local-time @this param)))
   clojure.lang.Keyword
   (local-time [this] (if (= this :now)
                          (wrap (LocalTime/now))
@@ -289,8 +289,8 @@
 
 (extend-protocol IOffsetTime
   guangyin.internal.types.ObjectWrapper
-  (offset-time [this] (offset-time @this))
-  (offset-time [this param] (offset-time @this param))
+  (offset-time ([this] (offset-time @this))
+               ([this param] (offset-time @this param)))
   clojure.lang.Keyword
   (offset-time [this] (if (= this :now)
                          (wrap (OffsetTime/now))
@@ -312,7 +312,8 @@
                ([this param] (wrap (OffsetTime/parse this (unwrap param)))))
   java.lang.Long
   (offset-time ([hour minute second nanosecond offset]
-                (wrap (OffsetTime/of hour minute second nanosecond offset)))))
+                (wrap (OffsetTime/of hour minute second nanosecond
+                                     @(zone-offset offset))))))
 
 (defn local-date-time?
   "Returns true if the given value is a local date-time."
@@ -325,8 +326,8 @@
 
 (extend-protocol ILocalDateTime
   guangyin.internal.types.ObjectWrapper
-  (local-date-time [this] (local-date-time @this))
-  (local-date-time [this param] (local-date-time @this param))
+  (local-date-time ([this] (local-date-time @this))
+                   ([this param] (local-date-time @this param)))
   clojure.lang.Keyword
   (local-date-time [this] (if (= this :now)
                               (wrap (LocalDateTime/now))
@@ -365,9 +366,9 @@
 
 (extend-protocol IOffsetDateTime
   guangyin.internal.types.ObjectWrapper
-  (offset-date-time [this] (offset-date-time @this))
-  (offset-date-time [this param] (offset-date-time @this param))
-  (offset-date-time [date time offset] (offset-date-time @date time offset))
+  (offset-date-time ([this] (offset-date-time @this))
+                    ([this param] (offset-date-time @this param))
+                    ([date time offset] (offset-date-time @date time offset)))
   clojure.lang.Keyword
   (offset-date-time [this] (if (= this :now)
                                (wrap (OffsetDateTime/now))
@@ -407,9 +408,9 @@
 
 (extend-protocol IZonedDateTime
   guangyin.internal.types.ObjectWrapper
-  (zoned-date-time [this] (zoned-date-time @this))
-  (zoned-date-time [this param] (zoned-date-time @this param))
-  (zoned-date-time [date time zone] (zoned-date-time @date time zone))
+  (zoned-date-time ([this] (zoned-date-time @this))
+                   ([this param] (zoned-date-time @this param))
+                   ([date time zone] (zoned-date-time @date time zone)))
   clojure.lang.Keyword
   (zoned-date-time [this] (when (= this :now)
                                 (wrap (ZonedDateTime/now))))
@@ -446,8 +447,8 @@
 
 (extend-protocol IYear
   guangyin.internal.types.ObjectWrapper
-  (year [this] (year @this))
-  (year [this param] (year @this param))
+  (year ([this] (year @this))
+        ([this param] (year @this param)))
   clojure.lang.Keyword
   (year [this] (if (= this :now)
                    (wrap (Year/now))
@@ -527,8 +528,8 @@
 
 (extend-protocol IMonthDay
   guangyin.internal.types.ObjectWrapper
-  (month-day [this] (month-day @this))
-  (month-day [month day] (month-day @month day))
+  (month-day ([this] (month-day @this))
+             ([month day] (month-day @month day)))
   clojure.lang.Keyword
   (month-day [this] (when (= this :now)
                           (wrap (MonthDay/now))))
@@ -612,6 +613,8 @@
                         (wrap (ZoneId/systemDefault))))
   java.time.temporal.TemporalAccessor
   (zone-id [this] (wrap (ZoneId/from this)))
+  java.time.ZoneId
+  (zone-id [this] (wrap this))
   java.lang.String
   (zone-id ([this] (wrap (ZoneId/of this)))
            ([prefix offset]
@@ -648,8 +651,13 @@
   (zone-offset [this] (zone-offset @this))
   clojure.lang.Keyword
   (zone-offset [this] (wrap (fields/zone-offsets this)))
+  java.time.Duration
+  (zone-offset [this]
+    (wrap (ZoneOffset/ofTotalSeconds (/ (.toMillis this) 1000))))
   java.time.temporal.TemporalAccessor
   (zone-offset [this] (wrap (ZoneOffset/from this)))
+  java.time.ZoneOffset
+  (zone-offset [this] (wrap this))
   java.lang.String
   (zone-offset [this] (wrap (ZoneOffset/of this)))
   java.lang.Long
