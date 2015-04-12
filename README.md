@@ -12,6 +12,31 @@ the old Chinese name for time, Guangyin.
 This library is very much work in progress. It is not recommended to use it
 in a project before this disclaimer is removed.
 
+## Design Principles
+
+Guangyin is an opinionated date and time library, which means there are several
+rules that are used in designing the API:
+
+1. Be liberal in input, conservative in output
+2. Enforce use of correct abstraction for the data
+3. Extensibility and readability over performance
+4. Easy access for lower level methods for performance
+5. Always use explicit time zones over implicit time zones
+6. Overload existing Clojure functions whenever possible
+
+This means that input types should always be coerced to the requested output if
+it is possible. It should not be easy or useful to use a date time object for
+describing a date only, there is a local date for a reason. Extensibility and
+readability is the main focus of this library, if performance is needed it
+should be achieved by calling the Java methods directly in performance critical
+sections.
+
+Time zones are the single most difficult thing in handling date and time
+calculations, therefore the programmer should always state in which time zone
+they are working on, also it should never be assumed that e.g. a day is 24 hours
+in the API. Should never introduce a new function if it is possible and makes
+any sense to overload an existing Clojure function.
+
 ## License
 
 ```
