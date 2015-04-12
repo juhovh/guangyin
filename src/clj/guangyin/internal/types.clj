@@ -1,6 +1,7 @@
 (ns guangyin.internal.types
   (:require [guangyin.internal.fields :as fields])
-  (:import (guangyin.internal.types ObjectWrapper TemporalAmountWrapper
+  (:import (guangyin.internal.types ObjectWrapper DurationWrapper
+                                    TemporalAmountWrapper
                                     TemporalAccessorWrapper TemporalWrapper)))
 
 (defmethod print-method ObjectWrapper
@@ -20,6 +21,9 @@
   (unwrap [this] this)
   java.time.temporal.TemporalAccessor
   (wrap [this] (TemporalAccessorWrapper. fields/all-iso-fields this))
+  (unwrap [this] this)
+  java.time.Duration
+  (wrap [this] (DurationWrapper. fields/all-iso-units this))
   (unwrap [this] this)
   java.time.temporal.TemporalAmount
   (wrap [this] (TemporalAmountWrapper. fields/all-iso-units this))
