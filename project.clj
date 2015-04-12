@@ -1,4 +1,4 @@
-(defproject guangyin/guangyin "0.1.1-SNAPSHOT"
+(defproject guangyin/guangyin "0.2.0"
   :description "Clojure date and time library wrapping java.time"
   :url "https://github.com/juhovh/guangyin"
   :license {:name "MIT License"
