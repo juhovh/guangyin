@@ -1,6 +1,8 @@
 # `Guangyin` <a href="http://travis-ci.org/#!/juhovh/guangyin/builds"><img src="https://secure.travis-ci.org/juhovh/guangyin.png" /></a>
 
-Clojure date and time library wrapping java.time.
+**Clojure date and time library wrapping Java 8 java.time package.**
+
+[![Clojars Project](http://clojars.org/guangyin/latest-version.svg)](http://clojars.org/guangyin)
 
 The Chinese have a saying “一寸光阴一寸金，寸金难买寸光阴”, which approximately
 translates to "time is money, but money can't buy time". Whenever working with
