@@ -257,7 +257,7 @@
 
 (defn offset-time?
   "Returns true if the given value is a time with a zone offset."
-  [x] (wrapped-instance? OffsetTime x))
+  [x] (instance? OffsetTime (unwrap x)))
 
 (defprotocol IOffsetTime
   (offset-time [this] [this param] [hour minute second nanosecond offset]
@@ -317,7 +317,7 @@
 
 (defn local-date-time?
   "Returns true if the given value is a local date-time."
-  [x] (wrapped-instance? LocalDateTime x))
+  [x] (instance? LocalDateTime (unwrap x)))
 
 (defprotocol ILocalDateTime
   (local-date-time [this] [this param] [year month day hour minute]
@@ -358,7 +358,7 @@
 
 (defn offset-date-time?
   "Returns true if the given value is a date-time with a zone offset."
-  [x] (wrapped-instance? OffsetDateTime x))
+  [x] (instance? OffsetDateTime (unwrap x)))
 
 (defprotocol IOffsetDateTime
   (offset-date-time [this] [this param] [date time offset]
@@ -400,7 +400,7 @@
 
 (defn zoned-date-time?
   "Returns true if the given value is a date-time with a time zone."
-  [x] (wrapped-instance? ZonedDateTime x))
+  [x] (instance? ZonedDateTime (unwrap x)))
 
 (defprotocol IZonedDateTime
   (zoned-date-time [this] [this param] [date time zone]
@@ -440,7 +440,7 @@
 
 (defn year?
   "Returns true if the given value is an exact year."
-  [x] (wrapped-instance? Year x))
+  [x] (instance? Year (unwrap x)))
 
 (defprotocol IYear
   (year [this] [this param]))
@@ -467,7 +467,7 @@
 
 (defn year-month?
   "Returns true if the given value is a combination of year and month."
-  [x] (wrapped-instance? YearMonth x))
+  [x] (instance? YearMonth (unwrap x)))
 
 (defprotocol IYearMonth
   (year-month [this] [year month]))
@@ -498,7 +498,7 @@
      true
      => (month? (months 2))
      false"
-  [x] (wrapped-instance? Month x))
+  [x] (instance? Month (unwrap x)))
 
 (defprotocol IMonth
   (month [this]))
@@ -521,7 +521,7 @@
 
 (defn month-day?
   "Returns true if the given value is a combination of month and day of month."
-  [x] (wrapped-instance? MonthDay x))
+  [x] (instance? MonthDay (unwrap x)))
 
 (defprotocol IMonthDay
   (month-day [this] [month day]))
@@ -555,7 +555,7 @@
      true
      => (day-of-week? (days 5))
      false"
-  [x] (wrapped-instance? DayOfWeek x))
+  [x] (instance? DayOfWeek (unwrap x)))
 
 (defprotocol IDayOfWeek
   (day-of-week [this]))
@@ -586,7 +586,7 @@
      true
      => (zone-id? (hours 1))
      false"
-  [x] (wrapped-instance? ZoneId x))
+  [x] (instance? ZoneId (unwrap x)))
 
 (defprotocol IZoneId
   (zone-id [this] [this param]
@@ -628,7 +628,7 @@
      true
      => (zone-offset? (zone-id \"Europe/Helsinki\"))
      false"
-  [x] (wrapped-instance? ZoneOffset x))
+  [x] (instance? ZoneOffset (unwrap x)))
 
 (defprotocol IZoneOffset
   (zone-offset [this] [hours minutes]
@@ -667,7 +667,7 @@
 
 (defn clock?
   "Returns true if the given value is a clock instance."
-  [x] (wrapped-instance? Clock x))
+  [x] (instance? Clock (unwrap x)))
 
 (defn clock
   ([]

@@ -34,11 +34,3 @@
   nil
   (wrap [this] nil)
   (unwrap [this] nil))
-
-; FIXME This should be removed
-(defn wrapped-instance?
-  [^Class c x]
-  (or (instance? c x)
-      (and (instance? ObjectWrapper x)
-           (instance? c @x))))
-
