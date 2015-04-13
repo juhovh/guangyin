@@ -13,6 +13,10 @@ public class ObjectWrapper implements Comparable, IDeref {
     }
 
     public boolean equals(Object obj) {
+        // Unwrap the wrapped object for check if needed
+        if (obj instanceof ObjectWrapper) {
+            obj = ((ObjectWrapper) obj).deref();
+        }
         return this.wrapped.equals(obj);
     }
 

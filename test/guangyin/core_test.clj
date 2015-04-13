@@ -1,53 +1,89 @@
 (ns guangyin.core-test
   (:require [clojure.test :refer :all]
-            [guangyin.core :refer :all])
-  (:import (java.time Clock ZoneOffset)
-           (java.time.format DateTimeFormatter)))
+            [guangyin.core :refer :all]
+            [guangyin.format :refer :all]))
 
-(defn date-time-tests
-  ([type? type]
-   (is (type? (type :now)))
-   (is (type? (type (Clock/systemUTC))))
-   (is (type? (type ZoneOffset/UTC))))
-  ([type? type strval]
-   (date-time-tests type? type)
-   (is (type? (type :min)))
-   (is (type? (type :max)))
-   (is (type? (type strval)))
-   (is (type? (type "2011-12-03T10:15:30+01:00[Europe/Paris]" DateTimeFormatter/ISO_DATE_TIME)))))
+(deftest test-instant
+  (is (instant? @(instant :now)))
+  (is (instant? @(instant (clock))))
+  (is (instant? @(instant "2015-01-01T12:15:00.123Z")))
+  (is (instant? @(instant :epoch)))
+  (is (instant? @(instant (offset-date-time :now))))
+  (is (= @(instant :epoch) (instant "1970-01-01T00:00:00Z")))
+  (is (= (:instant-seconds (instant "2015-01-01T12:15:00.123Z")) 1420114500)))
+
+(deftest test-period
+  (is (period? @(period "P2Y")))
+  (is (period? @(period "P1Y2M3W4D")))
+  (is (period? @(period "P-1Y2M")))
+  (is (period? @(period "-P1Y2M")))
+  (is (period? @(period :zero)))
+  (is (= (period (local-date "2015-01-01") (local-date "2017-04-12")) (period "P2Y3M11D")))
+  (is (period? @(years 2)))
+  (is (period? @(weeks 2)))
+  (is (period? @(months 2)))
+  (is (period? @(days 2)))
+  (is (= (:years (period "P2Y3M4W5D")) 2))
+  (is (= (:months (period "P2Y3M4W5D")) 3))
+  (is (= (:days (period "P2Y3M1W")) 7))
+  (is (= (:days (period "P2Y3M1W1D")) 8)))
+
+(deftest test-duration
+  (is (duration? @(duration "PT15M")))
+  (is (duration? @(duration "PT-6H3M")))
+  (is (duration? @(duration "-PT6H3M")))
+  (is (duration? @(duration (instant :epoch) (instant :now))))
+  (is (duration? @(duration (local-time :midnight) (local-time :noon))))
+  (is (duration? @(hours 2)))
+  (is (duration? @(minutes 2)))
+  (is (duration? @(seconds 2)))
+  (is (= (:hours (duration "PT2H3M4S")) 2))
+  (is (= (:minutes (duration "PT2H3M4S")) 123))
+  (is (= (:seconds (duration "PT2H3M4S")) 7384)))
 
 (deftest test-local-date
-  (date-time-tests local-date? local-date "2011-12-03"))
+  (is (local-date? @(local-date :now)))
+  (is (local-date? @(local-date (clock))))
+  (is (local-date? @(local-date (zone-id "Asia/Shanghai"))))
+  (is (local-date? @(local-date "2015-04-01")))
+  (is (local-date? @(local-date :max)))
+  (is (local-date? @(local-date (offset-date-time :now))))
+  (is (local-date? @(local-date "01.04.2015" (date-time-formatter "dd.MM.yyyy"))))
+  (is (local-date? @(local-date 2015 4 1)))
+  (is (= (:year (local-date 2015 4 1)) 2015))
+  (is (= (:month-of-year (local-date 2014 4 1)) 4))
+  (is (= (:day-of-month (local-date 2014 4 1)) 1)))
 
 (deftest test-local-time
-  (date-time-tests local-time? local-time "10:15:30"))
+  (is (local-time? @(local-time :now)))
+  (is (local-time? @(local-time (clock))))
+  (is (local-time? @(local-time (zone-id "Asia/Shanghai"))))
+  (is (local-time? @(local-time "12:15")))
+  (is (local-time? @(local-time "12:15:00.123")))
+  (is (local-time? @(local-time :noon)))
+  (is (local-time? @(local-time (local-date-time :now))))
+  (is (local-time? @(local-time "12.15" (date-time-formatter "HH.mm"))))
+  (is (local-time? @(local-time 12 15)))
+  (is (local-time? @(local-time 12 15 0)))
+  (is (local-time? @(local-time 12 15 0 123000000)))
+  (is (= (:hour-of-day (local-time "12:15:05.123")) 12))
+  (is (= (:minute-of-hour (local-time "12:15:05.123")) 15))
+  (is (= (:second-of-minute (local-time "12:15:05.123")) 5))
+  (is (= (:micro-of-second (local-time "12:15:05.123")) 123000)))
 
 (deftest test-offset-time
-  (date-time-tests offset-time? offset-time "10:15:30+01:00"))
-
-(deftest test-local-date-time
-  (date-time-tests local-date-time? local-date-time "2011-12-03T10:15:30"))
-
-(deftest test-offset-date-time
-  (date-time-tests offset-date-time? offset-date-time "2011-12-03T10:15:30+01:00"))
-
-(deftest test-zoned-date-time
-  (date-time-tests zoned-date-time? zoned-date-time)
-  (is (zoned-date-time? (zoned-date-time "2011-12-03T10:15:30+01:00[Europe/Paris]")))
-  (is (zoned-date-time? (zoned-date-time "2011-12-03T10:15:30+01:00[Europe/Paris]" DateTimeFormatter/ISO_DATE_TIME))))
-  
-
-(deftest test-year
-  (date-time-tests year? year))
-
-(deftest test-year-month
-  (date-time-tests year-month? year-month))
-
-(deftest test-month
-  (date-time-tests month? month))
-
-(deftest test-month-day
-  (date-time-tests month-day? month-day))
-
-(deftest test-day-of-week
-  (date-time-tests day-of-week? day-of-week))
+  (is (offset-time? @(offset-time :now)))
+  (is (offset-time? @(offset-time (clock))))
+  (is (offset-time? @(offset-time (zone-id "Asia/Shanghai"))))
+  (is (offset-time? @(offset-time "12:15:00.123+03:00")))
+  (is (offset-time? @(offset-time :max)))
+  (is (offset-time? @(offset-time (offset-date-time :now))))
+  (is (offset-time? @(offset-time (local-time 12 15) (zone-offset (hours 3)))))
+  (is (offset-time? @(offset-time (instant :now) (zone-id "Europe/Helsinki"))))
+  (is (offset-time? @(offset-time "12.15+0300" (date-time-formatter "HH.mmx"))))
+  (is (offset-time? @(offset-time 12 15 0 123000000 (zone-offset (hours 3)))))
+  (is (= (:hour-of-day (offset-time "12:15:05.123+03:00")) 12))
+  (is (= (:minute-of-hour (offset-time "12:15:05.123+03:00")) 15))
+  (is (= (:second-of-minute (offset-time "12:15:05.123+03:00")) 5))
+  (is (= (:micro-of-second (offset-time "12:15:05.123+03:00")) 123000))
+  (is (= (:offset-seconds (offset-time "12:15:05.123+03:00")) 10800)))
