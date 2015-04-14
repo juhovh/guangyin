@@ -716,7 +716,7 @@
   ([x] (wrap x))
   ([x y] (wrap (.plus (unwrap x) (unwrap y))))
   ([x y & more]
-   (reduce plus (.plus (unwrap x) (unwrap y) more))))
+   (reduce plus (.plus (unwrap x) (unwrap y)) more)))
 
 (defn minus
   ([] 0)
