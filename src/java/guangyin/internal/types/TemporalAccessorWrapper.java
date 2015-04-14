@@ -14,9 +14,9 @@ import java.time.temporal.TemporalAccessor;
 
 public class TemporalAccessorWrapper extends ObjectWrapper
   implements Iterable, Seqable, Counted, ILookup {
-    protected IPersistentMap keymap;
     private TemporalAccessor wrapped;
-    private IPersistentMap valmap;
+    protected IPersistentMap keymap;
+    protected IPersistentMap valmap;
 
     public TemporalAccessorWrapper(IPersistentMap keymap,
                                    TemporalAccessor wrapped) {

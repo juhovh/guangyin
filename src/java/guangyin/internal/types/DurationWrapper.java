@@ -1,8 +1,10 @@
 package guangyin.internal.types;
 
+import clojure.lang.BigInt;
 import clojure.lang.Keyword;
 import clojure.lang.ILookup;
 import clojure.lang.IPersistentMap;
+import clojure.lang.PersistentHashMap;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -16,23 +18,28 @@ public class DurationWrapper extends TemporalAmountWrapper implements ILookup {
         this.wrapped = wrapped;
     }
 
-    public Object valAt(Object key) {
-        return this.valAt(key, null);
-    }
+    protected IPersistentMap valmap() {
+        if (this.valmap == null) {
+            // Get seconds and nano-of-second as BigInt values
+            BigInt secs = BigInt.valueOf(this.wrapped.getSeconds());
+            BigInt nano = BigInt.valueOf(this.wrapped.getNano());
 
-    public Object valAt(Object key, Object notFound) {
-        Keyword keyword = (Keyword) key;
-        TemporalUnit unit = (TemporalUnit) keyword.invoke(this.keymap);
-        if (unit == null) {
-            return notFound;
-        } else if (unit == ChronoUnit.MINUTES) {
-            return wrapped.toMinutes();
-        } else if (unit == ChronoUnit.HOURS) {
-            return wrapped.toHours();
-        } else if (!wrapped.getUnits().contains(unit)) {
-            return notFound;
-        } else {
-          return wrapped.get(unit);
+            // Calculate milliseconds, microseconds and nanoseconds as BigInt
+            BigInt millis = secs.multiply(BigInt.valueOf(1000));
+            millis = millis.add(nano.quotient(BigInt.valueOf(1000000)));
+            BigInt micros = secs.multiply(BigInt.valueOf(1000000));
+            micros = micros.add(nano.quotient(BigInt.valueOf(1000)));
+            BigInt nanos = secs.multiply(BigInt.valueOf(1000000000)).add(nano);
+
+            this.valmap = PersistentHashMap.create(
+                Keyword.intern("hours"), this.wrapped.toHours(),
+                Keyword.intern("minutes"), this.wrapped.toMinutes(),
+                Keyword.intern("seconds"), this.wrapped.getSeconds(),
+                Keyword.intern("millis"), millis,
+                Keyword.intern("micros"), micros,
+                Keyword.intern("nanos"), nanos
+            );
         }
+        return this.valmap;
     }
 }
