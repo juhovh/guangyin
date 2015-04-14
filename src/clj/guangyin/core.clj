@@ -488,7 +488,7 @@
   (year-month ([this] (wrap (YearMonth/parse this)))
               ([this param] (wrap (YearMonth/parse this (unwrap param)))))
   java.lang.Long
-  (year-month [year month] (YearMonth/of year month)))
+  (year-month [year month] (wrap (YearMonth/of year month))))
 
 (defn month?
   "Returns true if the given value is an exact month.
@@ -517,7 +517,7 @@
   java.time.ZoneId
   (month [this] (wrap (Month/from (LocalDate/now this))))
   java.lang.Long
-  (month [this] (Month/of this)))
+  (month [this] (wrap (Month/of this))))
 
 (defn month-day?
   "Returns true if the given value is a combination of month and day of month."
@@ -545,7 +545,7 @@
   (month-day ([this] (wrap (MonthDay/parse this)))
              ([this param] (wrap (MonthDay/parse this (unwrap param)))))
   java.lang.Long
-  (month-day [month day] (MonthDay/of month day)))
+  (month-day [month day] (wrap (MonthDay/of month day))))
 
 (defn day-of-week?
   "Returns true if the given value is an exact day of week.
@@ -574,7 +574,7 @@
   java.time.ZoneId
   (day-of-week [this] (wrap (DayOfWeek/from (LocalDate/now this))))
   java.lang.Long
-  (day-of-week [this] (DayOfWeek/of this)))
+  (day-of-week [this] (wrap (DayOfWeek/of this))))
 
 (defn zone-id?
   "Returns true if the given value is a time zone.
