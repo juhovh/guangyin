@@ -725,3 +725,10 @@
   ([x y & more]
    (reduce minus (.minus (unwrap x) (unwrap y)) more)))
 
+(defn multiplied-by
+  [x ^long multiplicand]
+  (wrap (.multipliedBy (unwrap x) multiplicand)))
+
+(defn divided-by
+  [x ^long divisor]
+  (wrap (.dividedBy (unwrap x) divisor)))
