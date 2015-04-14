@@ -11,4 +11,4 @@
   :javac-options ["-target" "1.8" "-source" "1.8"]
   :profiles {:dev {:plugins [[codox "0.8.11"]
                              [lein-cloverage "1.0.2"]]
-                   :codox {:include [guangyin.core guangyin.format]}}})
+                   :codox {:include [guangyin.core guangyin.format guangyin.chrono]}}})
