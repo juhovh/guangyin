@@ -90,6 +90,6 @@
 (defkeymap week-fields java.time.temporal.WeekFields [ISO SUNDAY_START])
 
 
-(def all-iso-units (merge chrono-units iso-units))
-(def all-iso-fields (merge chrono-fields iso-fields))
+(def all-units (merge chrono-units iso-units))
+(def all-fields (merge chrono-fields iso-fields julian-fields))
 

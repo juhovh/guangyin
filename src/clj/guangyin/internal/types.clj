@@ -17,16 +17,16 @@
   (wrap [this] this)
   (unwrap [this] (deref this))
   java.time.temporal.Temporal
-  (wrap [this] (TemporalWrapper. fields/all-iso-fields this))
+  (wrap [this] (TemporalWrapper. fields/all-fields this))
   (unwrap [this] this)
   java.time.temporal.TemporalAccessor
-  (wrap [this] (TemporalAccessorWrapper. fields/all-iso-fields this))
+  (wrap [this] (TemporalAccessorWrapper. fields/all-fields this))
   (unwrap [this] this)
   java.time.Duration
-  (wrap [this] (DurationWrapper. fields/all-iso-units this))
+  (wrap [this] (DurationWrapper. fields/all-units this))
   (unwrap [this] this)
   java.time.temporal.TemporalAmount
-  (wrap [this] (TemporalAmountWrapper. fields/all-iso-units this))
+  (wrap [this] (TemporalAmountWrapper. fields/all-units this))
   (unwrap [this] this)
   java.lang.Object
   (wrap [this] (ObjectWrapper. this))
