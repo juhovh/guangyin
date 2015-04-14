@@ -707,6 +707,10 @@
   [seconds]
   (wrap (Duration/ofSeconds seconds)))
 
+(defn millis
+  [millis]
+  (wrap (Duration/ofMillis millis)))
+
 (defn nanos
   [nanos]
   (wrap (Duration/ofNanos nanos)))
