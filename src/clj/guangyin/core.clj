@@ -715,19 +715,39 @@
   [nanos]
   (wrap (Duration/ofNanos nanos)))
 
+(defn- fplus
+  ([] 0)
+  ([x] (wrap x))
+  ([x [key val]]
+   (.plus (unwrap x) val (fields/all-units key)))
+  ([x keyval & more]
+   (reduce fplus (fplus x keyval) more)))
+
 (defn plus
   ([] 0)
   ([x] (wrap x))
-  ([x y] (wrap (.plus (unwrap x) (unwrap y))))
+  ([x y] (if (map? y)
+             (apply fplus x (seq y))
+             (.plus (unwrap x) (unwrap y))))
   ([x y & more]
-   (reduce plus (.plus (unwrap x) (unwrap y)) more)))
+   (reduce plus (plus x y) more)))
+
+(defn- fminus
+  ([] 0)
+  ([x] (wrap x))
+  ([x [key val]]
+   (.minus (unwrap x) val (fields/all-units key)))
+  ([x keyval & more]
+   (reduce fminus (fminus x keyval) more)))
 
 (defn minus
   ([] 0)
-  ([x] x)
-  ([x y] (wrap (.minus (unwrap x) (unwrap y))))
+  ([x] (wrap x))
+  ([x y] (if (map? y)
+             (apply fminus x (seq y))
+             (.minus (unwrap x) (unwrap y))))
   ([x y & more]
-   (reduce minus (.minus (unwrap x) (unwrap y)) more)))
+   (reduce minus (minus x y) more)))
 
 (defn multiplied-by
   [x ^long multiplicand]
