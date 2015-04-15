@@ -8,6 +8,8 @@
   [obj writer]
   (print-method @obj writer))
 
+(prefer-method print-method ObjectWrapper clojure.lang.IPersistentMap)
+
 (defprotocol IWrappable
   (wrap [this])
   (unwrap [this]))
