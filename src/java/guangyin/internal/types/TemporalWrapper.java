@@ -1,6 +1,5 @@
 package guangyin.internal.types;
 
-import clojure.lang.Keyword;
 import clojure.lang.IMapEntry;
 import clojure.lang.Associative;
 import clojure.lang.IPersistentMap;
@@ -37,10 +36,9 @@ public class TemporalWrapper extends TemporalAccessorWrapper implements Associat
     }
 
     public Associative assoc(Object key, Object val) {
-        Keyword keyword = (Keyword) key;
-        TemporalField field = (TemporalField) keyword.invoke(this.keymap);
+        TemporalField field = (TemporalField) this.keymap.valAt(key);
         if (field == null || !wrapped.isSupported(field)) {
-            String msg = "Field " + keyword.getName() + " not supported";
+            String msg = "Field " + key.toString() + " not supported";
             throw new IllegalArgumentException(msg);
         }
         Temporal temporal = wrapped.with(field, (Long) val);

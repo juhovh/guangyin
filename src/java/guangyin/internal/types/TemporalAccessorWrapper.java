@@ -2,7 +2,6 @@ package guangyin.internal.types;
 
 import java.util.Iterator;
 import clojure.lang.ISeq;
-import clojure.lang.Keyword;
 import clojure.lang.Seqable;
 import clojure.lang.Counted;
 import clojure.lang.ILookup;
