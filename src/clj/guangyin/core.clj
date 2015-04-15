@@ -6,7 +6,7 @@
                       MonthDay OffsetDateTime OffsetTime Period Year YearMonth
                       ZonedDateTime ZoneId ZoneOffset DayOfWeek Month)))
 
-(declare zone-id zone-offset)
+(declare local-date zone-id zone-offset)
 
 (defn instant?
   "Returns true if the given value is an instant.
@@ -142,8 +142,9 @@
   (period [this] (wrap (fields/periods this)))
   java.time.temporal.TemporalAmount
   (period [this] (wrap (Period/from this)))
-  java.time.LocalDate
-  (period [this other] (wrap (Period/between this (unwrap other))))
+  java.time.chrono.ChronoLocalDate
+  (period [this other] (wrap (Period/between @(local-date this)
+                                             @(local-date other))))
   java.lang.String
   (period [this] (wrap (Period/parse this))))
 
@@ -332,8 +333,9 @@
   (local-date-time [this] (if (= this :now)
                               (wrap (LocalDateTime/now))
                               (wrap (fields/local-date-times this))))
-  java.time.LocalDate
-  (local-date-time [this param] (wrap (LocalDateTime/of this (unwrap param))))
+  java.time.chrono.ChronoLocalDate
+  (local-date-time [this param] (wrap (LocalDateTime/of @(local-date this)
+                                                        (unwrap param))))
   java.time.Instant
   (local-date-time [this param]
     (wrap (LocalDateTime/ofInstant this @(zone-id param))))
@@ -376,9 +378,9 @@
   java.time.LocalDateTime
   (offset-date-time [this param]
     (wrap (OffsetDateTime/of this @(zone-offset param))))
-  java.time.LocalDate
+  java.time.chrono.ChronoLocalDate
   (offset-date-time [date time offset]
-    (wrap (OffsetDateTime/of date (unwrap time) @(zone-offset offset))))
+    (wrap (OffsetDateTime/of @(local-date date) (unwrap time) @(zone-offset offset))))
   java.time.Instant
   (offset-date-time [this param]
     (wrap (OffsetDateTime/ofInstant this @(zone-id param))))
@@ -417,9 +419,9 @@
   java.time.LocalDateTime
   (zoned-date-time [this param]
     (wrap (ZonedDateTime/of this @(zone-id param))))
-  java.time.LocalDate
+  java.time.chrono.ChronoLocalDate
   (zoned-date-time [date time zone]
-    (wrap (ZonedDateTime/of date (unwrap time) @(zone-id zone))))
+    (wrap (ZonedDateTime/of @(local-date date) (unwrap time) @(zone-id zone))))
   java.time.Instant
   (zoned-date-time [this param]
     (wrap (ZonedDateTime/ofInstant this @(zone-id param))))
