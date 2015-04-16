@@ -14,8 +14,8 @@ public abstract class FnObjectWrapper extends AFn implements IWrapper {
 
     public boolean equals(Object obj) {
         // Unwrap the wrapped object for check if needed
-        if (obj instanceof ObjectWrapper) {
-            obj = ((ObjectWrapper) obj).deref();
+        if (obj instanceof IWrapper) {
+            obj = ((IWrapper) obj).deref();
         }
         return this.wrapped.equals(obj);
     }
@@ -31,8 +31,8 @@ public abstract class FnObjectWrapper extends AFn implements IWrapper {
     @SuppressWarnings("unchecked")
     public int compareTo(Object o) {
         // Unwrap the wrapped object for comparison if needed
-        if (o instanceof ObjectWrapper) {
-            o = ((ObjectWrapper) o).deref();
+        if (o instanceof IWrapper) {
+            o = ((IWrapper) o).deref();
         }
         return ((Comparable) this.wrapped).compareTo(o);
     }
