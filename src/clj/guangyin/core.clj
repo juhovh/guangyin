@@ -41,7 +41,7 @@
   clojure.lang.Keyword
   (instant [this] (if (= this :now)
                       (wrap (Instant/now))
-                      (wrap (fields/instants this))))
+                      (wrap (fields/get-field fields/instants this))))
   java.time.temporal.TemporalAccessor
   (instant [this] (wrap (Instant/from this)))
   java.time.Clock
@@ -90,7 +90,7 @@
   (duration ([this] (duration @this))
             ([this other] (duration @this other)))
   clojure.lang.Keyword
-  (duration [this] (wrap (fields/durations this)))
+  (duration [this] (wrap (fields/get-field fields/durations this)))
   java.time.temporal.Temporal
   (duration [this other] (wrap (Duration/between this (unwrap other))))
   java.time.temporal.TemporalAmount
@@ -139,7 +139,7 @@
   (period ([this] (period @this))
           ([this other] (period @this other)))
   clojure.lang.Keyword
-  (period [this] (wrap (fields/periods this)))
+  (period [this] (wrap (fields/get-field fields/periods this)))
   java.time.temporal.TemporalAmount
   (period [this] (wrap (Period/from this)))
   java.time.chrono.ChronoLocalDate
@@ -190,7 +190,7 @@
   clojure.lang.Keyword
   (local-date [this] (if (= this :now)
                          (wrap (LocalDate/now))
-                         (wrap (fields/local-dates this))))
+                         (wrap (fields/get-field fields/local-dates this))))
   java.time.temporal.TemporalAccessor
   (local-date [this] (wrap (LocalDate/from this)))
   java.time.Clock
@@ -252,7 +252,7 @@
   clojure.lang.Keyword
   (local-time [this] (if (= this :now)
                          (wrap (LocalTime/now))
-                         (wrap (fields/local-times this))))
+                         (wrap (fields/get-field fields/local-times this))))
   java.time.temporal.TemporalAccessor
   (local-time [this] (wrap (LocalTime/from this)))
   java.time.Clock
@@ -313,7 +313,7 @@
   clojure.lang.Keyword
   (offset-time [this] (if (= this :now)
                          (wrap (OffsetTime/now))
-                         (wrap (fields/offset-times this))))
+                         (wrap (fields/get-field fields/offset-times this))))
   java.time.LocalTime
   (offset-time [this param]
     (wrap (OffsetTime/of this @(zone-offset param))))
@@ -383,7 +383,8 @@
   clojure.lang.Keyword
   (local-date-time [this] (if (= this :now)
                               (wrap (LocalDateTime/now))
-                              (wrap (fields/local-date-times this))))
+                              (wrap (fields/get-field fields/local-date-times
+                                                      this))))
   java.time.chrono.ChronoLocalDate
   (local-date-time [this param] (wrap (LocalDateTime/of @(local-date this)
                                                         (unwrap param))))
@@ -456,7 +457,8 @@
   clojure.lang.Keyword
   (offset-date-time [this] (if (= this :now)
                                (wrap (OffsetDateTime/now))
-                               (wrap (fields/offset-date-times this))))
+                               (wrap (fields/get-field fields/offset-date-times
+                                                       this))))
   java.time.LocalDateTime
   (offset-date-time [this param]
     (wrap (OffsetDateTime/of this @(zone-offset param))))
@@ -502,8 +504,10 @@
                    ([this param] (zoned-date-time @this param))
                    ([date time zone] (zoned-date-time @date time zone)))
   clojure.lang.Keyword
-  (zoned-date-time [this] (when (= this :now)
-                                (wrap (ZonedDateTime/now))))
+  (zoned-date-time [this] (if (= this :now)
+                              (wrap (ZonedDateTime/now))
+                              (throw (IllegalArgumentException.
+                                       (str "Invalid key " this)))))
   java.time.LocalDateTime
   (zoned-date-time [this param]
     (wrap (ZonedDateTime/of this @(zone-id param))))
@@ -542,7 +546,7 @@
   clojure.lang.Keyword
   (year [this] (if (= this :now)
                    (wrap (Year/now))
-                   (wrap (fields/years this))))
+                   (wrap (fields/get-field fields/years this))))
   java.time.temporal.TemporalAccessor
   (year [this] (wrap (Year/from this)))
   java.time.Clock
@@ -566,8 +570,10 @@
   guangyin.internal.types.IWrapper
   (year-month [this] (year-month @this))
   clojure.lang.Keyword
-  (year-month [this] (when (= this :now)
-                           (wrap (YearMonth/now))))
+  (year-month [this] (if (= this :now)
+                         (wrap (YearMonth/now))
+                         (throw (IllegalArgumentException.
+                                  (str "Invalid key " this)))))
   java.time.temporal.TemporalAccessor
   (year-month [this] (wrap (YearMonth/from this)))
   java.time.Clock
@@ -599,7 +605,7 @@
   clojure.lang.Keyword
   (month [this] (if (= this :now)
                     (wrap (Month/from (LocalDate/now)))
-                    (wrap (fields/months this))))
+                    (wrap (fields/get-field fields/months this))))
   java.time.temporal.TemporalAccessor
   (month [this] (wrap (Month/from this)))
   java.time.Clock
@@ -621,8 +627,10 @@
   (month-day ([this] (month-day @this))
              ([month day] (month-day @month day)))
   clojure.lang.Keyword
-  (month-day [this] (when (= this :now)
-                          (wrap (MonthDay/now))))
+  (month-day [this] (if (= this :now)
+                        (wrap (MonthDay/now))
+                        (throw (IllegalArgumentException.
+                                 (str "Invalid key " this)))))
   java.time.Month
   (month-day [month day] (wrap (MonthDay/of month day)))
   java.time.temporal.TemporalAccessor
@@ -656,7 +664,7 @@
   clojure.lang.Keyword
   (day-of-week [this] (if (= this :now)
                           (wrap (DayOfWeek/from (LocalDate/now)))
-                          (wrap (fields/day-of-weeks this))))
+                          (wrap (fields/get-field fields/day-of-weeks this))))
   java.time.temporal.TemporalAccessor
   (day-of-week [this] (wrap (DayOfWeek/from this)))
   java.time.Clock
@@ -699,8 +707,10 @@
   guangyin.internal.types.IWrapper
   (zone-id [this] (zone-id @this))
   clojure.lang.Keyword
-  (zone-id [this] (when (= this :default)
-                        (wrap (ZoneId/systemDefault))))
+  (zone-id [this] (if (= this :default)
+                      (wrap (ZoneId/systemDefault))
+                      (throw (IllegalArgumentException.
+                               (str "Invalid key " this)))))
   java.time.temporal.TemporalAccessor
   (zone-id [this] (wrap (ZoneId/from this)))
   java.time.ZoneId
@@ -740,7 +750,7 @@
   guangyin.internal.types.IWrapper
   (zone-offset [this] (zone-offset @this))
   clojure.lang.Keyword
-  (zone-offset [this] (wrap (fields/zone-offsets this)))
+  (zone-offset [this] (wrap (fields/get-field fields/zone-offsets this)))
   java.time.Duration
   (zone-offset [this]
     (wrap (ZoneOffset/ofTotalSeconds (/ (.toMillis this) 1000))))
@@ -809,7 +819,7 @@
   ([] 0)
   ([x] (wrap x))
   ([x [key val]]
-   (.plus (unwrap x) val (fields/all-units key)))
+   (.plus (unwrap x) val (fields/get-field fields/all-units key)))
   ([x keyval & more]
    (reduce fplus (fplus x keyval) more)))
 
@@ -826,7 +836,7 @@
   ([] 0)
   ([x] (wrap x))
   ([x [key val]]
-   (.minus (unwrap x) val (fields/all-units key)))
+   (.minus (unwrap x) val (fields/get-field fields/all-units key)))
   ([x keyval & more]
    (reduce fminus (fminus x keyval) more)))
 

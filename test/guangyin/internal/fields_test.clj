@@ -35,3 +35,6 @@
   (is (= nil (date-time-formatters :iso-late)))
   (is (= DateTimeFormatter/ISO_INSTANT (date-time-formatters :iso-instant))))
 
+(deftest test-get-field
+  (is (get-field months :january))
+  (is (thrown? IllegalArgumentException (get-field months :monday))))

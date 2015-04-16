@@ -6,11 +6,11 @@
 
 (defn iso-era
   [key]
-  (wrap (fields/iso-eras key)))
+  (wrap (fields/get-field fields/iso-eras key)))
 
 (defn hijrah-era
   [key]
-  (wrap (fields/hijrah-eras key)))
+  (wrap (fields/get-field fields/hijrah-eras key)))
 
 (defprotocol IHijrahDate
   (hijrah-date [this] [year month day]))
@@ -32,7 +32,7 @@
 
 (defn japanese-era
   [key]
-  (wrap (fields/japanese-eras key)))
+  (wrap (fields/get-field fields/japanese-eras key)))
 
 (defprotocol IJapaneseDate
   (japanese-date [this] [year month day] [era year month day]))
@@ -58,7 +58,7 @@
 
 (defn minguo-era
   [key]
-  (wrap (fields/minguo-eras key)))
+  (wrap (fields/get-field fields/minguo-eras key)))
 
 (defprotocol IMinguoDate
   (minguo-date [this] [year month day]))
@@ -80,7 +80,7 @@
 
 (defn thai-buddhist-era
   [key]
-  (wrap (fields/thai-buddhist-eras key)))
+  (wrap (fields/get-field fields/thai-buddhist-eras key)))
 
 (defprotocol IThaiBuddhistDate
   (thai-buddhist-date [this] [year month day]))

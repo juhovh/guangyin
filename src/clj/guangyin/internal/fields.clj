@@ -81,7 +81,10 @@
                                                           RATA_DIE])
 (defkeymap week-fields java.time.temporal.WeekFields [ISO SUNDAY_START])
 
-
 (def all-units (merge chrono-units iso-units))
 (def all-fields (merge chrono-fields iso-fields julian-fields))
 
+(defn get-field
+  [keymap field]
+  (or (keymap field)
+      (throw (IllegalArgumentException. (str "Field " field " not in " (keys keymap))))))

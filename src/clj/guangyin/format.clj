@@ -16,7 +16,8 @@
   (date-time-formatter ([this] (date-time-formatter @this))
                        ([this param] (date-time-formatter @this param)))
   clojure.lang.Keyword
-  (date-time-formatter [this] (wrap (fields/date-time-formatters this)))
+  (date-time-formatter [this]
+    (wrap (fields/get-field fields/date-time-formatters this)))
   java.time.format.DateTimeFormatter
   (date-time-formatter [this] (wrap this))
   java.lang.String
