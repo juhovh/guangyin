@@ -4,6 +4,14 @@
   (:import (java.time.chrono HijrahDate JapaneseDate MinguoDate
                              ThaiBuddhistDate)))
 
+(defn iso-era
+  [key]
+  (wrap (fields/iso-eras key)))
+
+(defn hijrah-era
+  [key]
+  (wrap (fields/hijrah-eras key)))
+
 (defprotocol IHijrahDate
   (hijrah-date [this] [year month day]))
 
@@ -21,6 +29,10 @@
   (hijrah-date [this] (wrap (HijrahDate/now this)))
   java.lang.Long
   (hijrah-date [year month day] (wrap (HijrahDate/of year month day))))
+
+(defn japanese-era
+  [key]
+  (wrap (fields/japanese-eras key)))
 
 (defprotocol IJapaneseDate
   (japanese-date [this] [year month day] [era year month day]))
@@ -44,6 +56,10 @@
   java.lang.Long
   (japanese-date [year month day] (wrap (JapaneseDate/of year month day))))
 
+(defn minguo-era
+  [key]
+  (wrap (fields/minguo-eras key)))
+
 (defprotocol IMinguoDate
   (minguo-date [this] [year month day]))
 
@@ -61,6 +77,10 @@
   (minguo-date [this] (wrap (MinguoDate/now this)))
   java.lang.Long
   (minguo-date [year month day] (wrap (MinguoDate/of year month day))))
+
+(defn thai-buddhist-era
+  [key]
+  (wrap (fields/thai-buddhist-eras key)))
 
 (defprotocol IThaiBuddhistDate
   (thai-buddhist-date [this] [year month day]))

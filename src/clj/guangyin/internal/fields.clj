@@ -59,6 +59,8 @@
 (defkeymap periods java.time.Period [ZERO])
 (defkeymap years java.time.Year [MIN_VALUE MAX_VALUE])
 (defkeymap zone-offsets java.time.ZoneOffset [MIN MAX UTC])
+(defkeymap japanese-eras java.time.chrono.JapaneseEra [HEISEI MEIJI
+                                                       SHOWA TAISHO])
 (defkeymap date-time-formatters
   java.time.format.DateTimeFormatter [BASIC_ISO_DATE ISO_LOCAL_DATE
 				      ISO_OFFSET_DATE ISO_DATE ISO_LOCAL_TIME
