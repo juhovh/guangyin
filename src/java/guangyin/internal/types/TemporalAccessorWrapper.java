@@ -1,26 +1,18 @@
 package guangyin.internal.types;
 
-import java.util.Iterator;
-import clojure.lang.ISeq;
-import clojure.lang.Seqable;
-import clojure.lang.Counted;
-import clojure.lang.ILookup;
 import clojure.lang.IMapEntry;
 import clojure.lang.IPersistentMap;
 import clojure.lang.PersistentHashMap;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalAccessor;
 
-public class TemporalAccessorWrapper extends ObjectWrapper
-  implements Iterable, Seqable, Counted, ILookup {
+public class TemporalAccessorWrapper extends MapObjectWrapper {
     private TemporalAccessor wrapped;
-    protected IPersistentMap keymap;
-    protected IPersistentMap valmap;
+    private IPersistentMap valmap;
 
     public TemporalAccessorWrapper(IPersistentMap keymap,
                                    TemporalAccessor wrapped) {
-        super(wrapped);
-        this.keymap = keymap;
+        super(keymap, wrapped);
         this.wrapped = wrapped;
     }
 
@@ -37,25 +29,5 @@ public class TemporalAccessorWrapper extends ObjectWrapper
             this.valmap = valmap;
         }
         return this.valmap;
-    }
-
-    public Iterator iterator() {
-        return this.valmap().iterator();
-    }
-
-    public ISeq seq() {
-        return this.valmap().seq();
-    }
-
-    public int count() {
-        return this.valmap().count();
-    }
-
-    public Object valAt(Object key) {
-        return this.valmap().valAt(key);
-    }
-
-    public Object valAt(Object key, Object notFound) {
-        return this.valmap().valAt(key, notFound);
     }
 }

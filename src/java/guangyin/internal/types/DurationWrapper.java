@@ -12,6 +12,7 @@ import java.time.temporal.TemporalAmount;
 
 public class DurationWrapper extends TemporalAmountWrapper implements ILookup {
     private Duration wrapped;
+    private IPersistentMap valmap;
 
     public DurationWrapper(IPersistentMap keymap, Duration wrapped) {
         super(keymap, wrapped);
