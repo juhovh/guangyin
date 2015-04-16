@@ -9,10 +9,7 @@
 
 (defn- field-to-symbol
   [class-var field]
-  (let [decl-class (if (instance? java.lang.Enum class-var)
-                       (.getDeclaringClass class-var)
-                       class-var)
-        class-name (.getName decl-class)]
+  (let [class-name (.getName class-var)]
     (symbol (str class-name "/" (name field)))))
 
 (defn- field-to-keyword
