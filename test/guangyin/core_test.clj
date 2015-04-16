@@ -87,3 +87,17 @@
   (is (= (:second-of-minute (offset-time "12:15:05.123+03:00")) 5))
   (is (= (:micro-of-second (offset-time "12:15:05.123+03:00")) 123000))
   (is (= (:offset-seconds (offset-time "12:15:05.123+03:00")) 10800)))
+
+(deftest test-local-date-time
+  (is (local-date-time? @(local-date-time :now)))
+  (is (local-date-time? @(local-date-time (clock))))
+  (is (local-date-time? @(local-date-time (zone-id "Asia/Shanghai"))))
+  (is (local-date-time? @(local-date-time "2015-04-16T12:15:00.123")))
+  (is (local-date-time? @(local-date-time "16.04.2015 12.15" (date-time-formatter "dd.MM.yyyy HH.mm"))))
+  (is (local-date-time? @(local-date-time :max)))
+  (is (local-date-time? @(local-date-time (offset-date-time :now))))
+  (is (local-date-time? @(local-date-time (instant :now) (zone-id "Asia/Shanghai"))))
+  (is (local-date-time? @(local-date-time (local-date :now) (local-time :now))))
+  (is (local-date-time? @(local-date-time 2015 4 16 12 15)))
+  (is (local-date-time? @(local-date-time 2015 4 16 12 15 0)))
+  (is (local-date-time? @(local-date-time 2015 4 16 12 15 0 123000000))))

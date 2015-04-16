@@ -149,7 +149,13 @@
   (period [this] (wrap (Period/parse this))))
 
 (defn local-date?
-  "Returns true if the given value is a local date."
+  "Returns true if the given value is a local date.
+   Examples:
+
+     => (local-date? (local-date :now))
+     true
+     => (local-date? (local-date-time :now))
+     false"
   [x]
   (instance? LocalDate (unwrap x)))
 
@@ -198,7 +204,13 @@
   (local-date [year month day] (wrap (LocalDate/of year month day))))
 
 (defn local-time?
-  "Returns true if the given value is a local time."
+  "Returns true if the given value is a local time.
+   Examples:
+
+     => (local-time? (local-time :now))
+     true
+     => (local-time? (local-date-time :now))
+     false"
   [x]
   (instance? LocalTime (unwrap x)))
 
@@ -257,7 +269,13 @@
                (wrap (LocalTime/of hour minute second nanosecond)))))
 
 (defn offset-time?
-  "Returns true if the given value is a time with a zone offset."
+  "Returns true if the given value is a time with a zone offset.
+   Examples:
+
+     => (offset-time? (offset-time :now))
+     true
+     => (offset-time? (offset-date-time :now))
+     false"
   [x] (instance? OffsetTime (unwrap x)))
 
 (defprotocol IOffsetTime
@@ -317,13 +335,46 @@
                                      @(zone-offset offset))))))
 
 (defn local-date-time?
-  "Returns true if the given value is a local date-time."
+  "Returns true if the given value is a local date-time.
+   Examples:
+
+     => (local-date-time? (local-date-time :now))
+     true
+     => (local-date-time? (offset-date-time :now))
+     false"
   [x] (instance? LocalDateTime (unwrap x)))
 
 (defprotocol ILocalDateTime
   (local-date-time [this] [this param] [year month day hour minute]
                    [year month day hour minute second]
-                   [year month day hour minute second nanosecond]))
+                   [year month day hour minute second nanosecond]
+  "Coerce to local date-time.
+   Examples:
+
+     => (local-date-time :now)
+     #<LocalDateTime 2015-04-16T12:15:00.123>
+     => (local-date-time (clock))
+     #<LocalDateTime 2015-04-16T12:15:00.123>
+     => (local-date-time (zone-id \"Asia/Shanghai\"))
+     #<LocalDateTime 2015-04-16T17:15:00.123>
+     => (local-date-time \"2015-04-16T12:15:00.123\")
+     #<LocalDateTime 2015-04-16T12:15:00.123>
+     => (local-date-time \"16.04.2015 12.15\" (date-time-formatter \"dd.MM.yyyy HH.mm\"))
+     #<LocalDateTime 2015-04-16T12:15>
+     => (local-date-time :max)
+     #<LocalDateTime +999999999-12-31T23:59:59.999999999>
+     => (local-date-time (offset-date-time :now))
+     #<LocalDateTime 2015-04-16T12:15:00.123>
+     => (local-date-time (instant :now) (zone-id \"Asia/Shanghai\"))
+     #<LocalDateTime 2015-04-16T17:15:00.123>
+     => (local-date-time (local-date :now) (local-time :now))
+     #<LocalDateTime 2015-04-16T12:15:00.123>
+     => (local-date-time 2015 4 16 12 15)
+     #<LocalDateTime 2015-04-16T12:15>
+     => (local-date-time 2015 4 16 12 15 0)
+     #<LocalDateTime 2015-04-16T12:15>
+     => (local-date-time 2015 4 16 12 15 0 123000000)
+     #<LocalDateTime 2015-04-16T12:15:00.123>"))
 
 (extend-protocol ILocalDateTime
   guangyin.internal.types.IWrapper
