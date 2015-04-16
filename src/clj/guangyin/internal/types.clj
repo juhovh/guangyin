@@ -2,7 +2,8 @@
   (:require [guangyin.internal.fields :as fields])
   (:import (guangyin.internal.types IWrapper ObjectWrapper DurationWrapper
                                     TemporalAmountWrapper
-                                    TemporalAccessorWrapper TemporalWrapper)))
+                                    TemporalAccessorWrapper TemporalWrapper
+                                    DateTimeFormatterWrapper)))
 
 (defmethod print-method IWrapper
   [obj writer]
@@ -18,6 +19,9 @@
   guangyin.internal.types.IWrapper
   (wrap [this] this)
   (unwrap [this] (deref this))
+  java.time.format.DateTimeFormatter
+  (wrap [this] (DateTimeFormatterWrapper. this))
+  (unwrap [this] this)
   java.time.temporal.Temporal
   (wrap [this] (TemporalWrapper. fields/all-fields this))
   (unwrap [this] this)

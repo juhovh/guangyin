@@ -13,12 +13,13 @@
 
 (extend-protocol IDateTimeFormatter
   guangyin.internal.types.IWrapper
-  (date-time-formatter [this] (date-time-formatter @this))
-  (date-time-formatter [this param] (date-time-formatter @this param))
+  (date-time-formatter ([this] (date-time-formatter @this))
+                       ([this param] (date-time-formatter @this param)))
   clojure.lang.Keyword
   (date-time-formatter [this] (wrap (fields/date-time-formatters this)))
   java.time.format.DateTimeFormatter
   (date-time-formatter [this] (wrap this))
   java.lang.String
-  (date-time-formatter ([this] (DateTimeFormatter/ofPattern this))
-                       ([this param] (DateTimeFormatter/ofPattern this param))))
+  (date-time-formatter ([this] (wrap (DateTimeFormatter/ofPattern this)))
+                       ([this param]
+                        (wrap (DateTimeFormatter/ofPattern this param)))))
