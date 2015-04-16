@@ -25,6 +25,7 @@ rules that are used in designing the API:
 4. Easy access for lower level methods for performance
 5. Always use explicit time zones over implicit time zones
 6. Overload existing Clojure functions whenever possible
+7. Make error messages understandable whenever possible
 
 This means that input types should always be coerced to the requested output if
 it is possible. It should not be easy or useful to use a date time object for
@@ -37,7 +38,8 @@ Time zones are the single most difficult thing in handling date and time
 calculations, therefore the programmer should always state in which time zone
 they are working on, also it should never be assumed that e.g. a day is 24 hours
 in the API. Should never introduce a new function if it is possible and makes
-any sense to overload an existing Clojure function.
+any sense to overload an existing Clojure function. Proper error messages can
+save lots of time in debugging, so should always aim for that.
 
 ## License
 
