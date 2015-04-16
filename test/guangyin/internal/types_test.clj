@@ -47,7 +47,11 @@
     (is (= month (unwrap wrapped)))
     (is (= 6 (:month-of-year wrapped)))
     (is (= nil (:year wrapped)))
-    (is (= 42 (get wrapped :year 42)))))
+    (is (= 42 (get wrapped :year 42)))
+    (is (= true (contains? wrapped :month-of-year)))
+    (is (= false (contains? wrapped :year)))
+    (is (= :month-of-year (.key (find wrapped :month-of-year))))
+    (is (= 6 (.val (find wrapped :month-of-year))))))
 
 (deftest test-duration
   (let [duration (java.time.Duration/parse "PT1H2M3S")
@@ -61,7 +65,11 @@
     (is (= 3723 (:seconds wrapped)))
     (is (= 3723000 (:millis wrapped)))
     (is (= 3723000000 (:micros wrapped)))
-    (is (= 3723000000000 (:nanos wrapped)))))
+    (is (= 3723000000000 (:nanos wrapped)))
+    (is (= true (contains? wrapped :hours)))
+    (is (= false (contains? wrapped :days)))
+    (is (= :hours (.key (find wrapped :hours))))
+    (is (= 1 (.val (find wrapped :hours))))))
 
 (deftest test-temporal-amount
   (let [period (java.time.Period/parse "P1Y2M3D")
@@ -72,4 +80,9 @@
     (is (= 1 (:years wrapped)))
     (is (= 2 (:months wrapped)))
     (is (= 3 (:days wrapped)))
-    (is (= nil (:hours wrapped)))))
+    (is (= nil (:hours wrapped)))
+    (is (= true (contains? wrapped :years)))
+    (is (= false (contains? wrapped :hours)))
+    (is (= :years (.key (find wrapped :years))))
+    (is (= 1 (.val (find wrapped :years))))))
+
