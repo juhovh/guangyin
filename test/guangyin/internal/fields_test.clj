@@ -12,15 +12,6 @@
 
 (refer-private 'guangyin.internal.fields)
 
-(deftest test-camel-to-kebab
-  (is (= "camel-case" (camel-to-kebab "CamelCase")))
-  (is (= "camel-camel-case" (camel-to-kebab "CamelCamelCase")))
-  (is (= "camel2-camel2-case" (camel-to-kebab "Camel2Camel2Case")))
-  (is (= "get-http-response-code" (camel-to-kebab "getHTTPResponseCode")))
-  (is (= "get2-http-response-code" (camel-to-kebab "get2HTTPResponseCode")))
-  (is (= "http-response-code" (camel-to-kebab "HTTPResponseCode")))
-  (is (= "http-response-code-xyz" (camel-to-kebab "HTTPResponseCodeXYZ"))))
- 
 (deftest test-field-to-symbol
   (is (= (symbol "java.time.DayOfWeek/MONDAY") (field-to-symbol java.time.DayOfWeek 'MONDAY)))
   (is (= (symbol "java.time.temporal.ChronoUnit/DAYS") (field-to-symbol ChronoUnit 'DAYS)))

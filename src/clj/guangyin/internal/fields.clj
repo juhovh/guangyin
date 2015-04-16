@@ -1,12 +1,5 @@
 (ns guangyin.internal.fields)
 
-(defn- camel-to-kebab
-  [name]
-  (-> name
-      (clojure.string/replace #"(.)([A-Z][a-z]+)" "$1-$2")
-      (clojure.string/replace #"([a-z0-9])([A-Z])" "$1-$2")
-      (clojure.string/lower-case)))
-
 (defn- field-to-symbol
   [class-var field]
   (let [class-name (.getName class-var)]
