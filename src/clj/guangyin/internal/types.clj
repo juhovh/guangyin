@@ -1,21 +1,21 @@
 (ns guangyin.internal.types
   (:require [guangyin.internal.fields :as fields])
-  (:import (guangyin.internal.types ObjectWrapper DurationWrapper
+  (:import (guangyin.internal.types IWrapper ObjectWrapper DurationWrapper
                                     TemporalAmountWrapper
                                     TemporalAccessorWrapper TemporalWrapper)))
 
-(defmethod print-method ObjectWrapper
+(defmethod print-method IWrapper
   [obj writer]
   (print-method @obj writer))
 
-(prefer-method print-method ObjectWrapper clojure.lang.IPersistentMap)
+(prefer-method print-method IWrapper clojure.lang.IPersistentMap)
 
 (defprotocol IWrappable
   (wrap [this])
   (unwrap [this]))
 
 (extend-protocol IWrappable
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (wrap [this] this)
   (unwrap [this] (deref this))
   java.time.temporal.Temporal

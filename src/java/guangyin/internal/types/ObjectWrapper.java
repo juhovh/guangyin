@@ -1,8 +1,6 @@
 package guangyin.internal.types;
 
-import clojure.lang.IDeref;
-
-public class ObjectWrapper implements Comparable, IDeref {
+public class ObjectWrapper implements IWrapper {
     private Object wrapped;
 
     public ObjectWrapper(Object wrapped) {

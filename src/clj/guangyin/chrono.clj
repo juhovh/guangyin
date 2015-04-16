@@ -8,7 +8,7 @@
   (hijrah-date [this] [year month day]))
 
 (extend-protocol IHijrahDate
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (hijrah-date [this] (hijrah-date @this))
   clojure.lang.Keyword
   (hijrah-date [this] (when (= this :now)
@@ -26,7 +26,7 @@
   (japanese-date [this] [year month day] [era year month day]))
 
 (extend-protocol IJapaneseDate
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (japanese-date ([this] (japanese-date @this))
                  ([era year month day] (japanese-date @era year month day)))
   clojure.lang.Keyword
@@ -48,7 +48,7 @@
   (minguo-date [this] [year month day]))
 
 (extend-protocol IMinguoDate
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (minguo-date [this] (minguo-date @this))
   clojure.lang.Keyword
   (minguo-date [this] (when (= this :now)
@@ -66,7 +66,7 @@
   (thai-buddhist-date [this] [year month day]))
 
 (extend-protocol IThaiBuddhistDate
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (thai-buddhist-date [this] (thai-buddhist-date @this))
   clojure.lang.Keyword
   (thai-buddhist-date [this] (when (= this :now)

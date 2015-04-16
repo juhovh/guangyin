@@ -12,7 +12,7 @@
   (date-time-formatter [this] [this param]))
 
 (extend-protocol IDateTimeFormatter
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (date-time-formatter [this] (date-time-formatter @this))
   (date-time-formatter [this param] (date-time-formatter @this param))
   clojure.lang.Keyword

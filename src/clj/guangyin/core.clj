@@ -36,7 +36,7 @@
       #<Instant 2015-01-01T12:15:00.123Z>"))
 
 (extend-protocol IInstant
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (instant [this] (instant @this))
   clojure.lang.Keyword
   (instant [this] (if (= this :now)
@@ -86,7 +86,7 @@
       #<Duration PT12H>"))
 
 (extend-protocol IDuration
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (duration ([this] (duration @this))
             ([this other] (duration @this other)))
   clojure.lang.Keyword
@@ -135,7 +135,7 @@
       #<Period P2Y3M11D>"))
   
 (extend-protocol IPeriod
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (period ([this] (period @this))
           ([this other] (period @this other)))
   clojure.lang.Keyword
@@ -178,7 +178,7 @@
       #<LocalDate 2015-04-01>"))
 
 (extend-protocol ILocalDate
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (local-date ([this] (local-date @this))
               ([this param] (local-date @this param)))
   clojure.lang.Keyword
@@ -234,7 +234,7 @@
       #<LocalTime 12:15:00.123>"))
 
 (extend-protocol ILocalTime
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (local-time ([this] (local-time @this))
               ([this param] (local-time @this param)))
   clojure.lang.Keyword
@@ -289,7 +289,7 @@
       #<OffsetTime 12:15:00.123+03:00>"))
 
 (extend-protocol IOffsetTime
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (offset-time ([this] (offset-time @this))
                ([this param] (offset-time @this param)))
   clojure.lang.Keyword
@@ -326,7 +326,7 @@
                    [year month day hour minute second nanosecond]))
 
 (extend-protocol ILocalDateTime
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (local-date-time ([this] (local-date-time @this))
                    ([this param] (local-date-time @this param)))
   clojure.lang.Keyword
@@ -367,7 +367,7 @@
                     [year month day hour minute second nanosecond offset]))
 
 (extend-protocol IOffsetDateTime
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (offset-date-time ([this] (offset-date-time @this))
                     ([this param] (offset-date-time @this param))
                     ([date time offset] (offset-date-time @date time offset)))
@@ -409,7 +409,7 @@
                    [year month day hour minute second nanosecond zone]))
 
 (extend-protocol IZonedDateTime
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (zoned-date-time ([this] (zoned-date-time @this))
                    ([this param] (zoned-date-time @this param))
                    ([date time zone] (zoned-date-time @date time zone)))
@@ -448,7 +448,7 @@
   (year [this] [this param]))
 
 (extend-protocol IYear
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (year ([this] (year @this))
         ([this param] (year @this param)))
   clojure.lang.Keyword
@@ -475,7 +475,7 @@
   (year-month [this] [year month]))
 
 (extend-protocol IYearMonth
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (year-month [this] (year-month @this))
   clojure.lang.Keyword
   (year-month [this] (when (= this :now)
@@ -506,7 +506,7 @@
   (month [this]))
 
 (extend-protocol IMonth
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (month [this] (month @this))
   clojure.lang.Keyword
   (month [this] (if (= this :now)
@@ -529,7 +529,7 @@
   (month-day [this] [month day]))
 
 (extend-protocol IMonthDay
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (month-day ([this] (month-day @this))
              ([month day] (month-day @month day)))
   clojure.lang.Keyword
@@ -563,7 +563,7 @@
   (day-of-week [this]))
 
 (extend-protocol IDayOfWeek
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (day-of-week [this] (day-of-week @this))
   clojure.lang.Keyword
   (day-of-week [this] (if (= this :now)
@@ -608,7 +608,7 @@
       #<ZoneRegion UTC+08:00>"))
 
 (extend-protocol IZoneId
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (zone-id [this] (zone-id @this))
   clojure.lang.Keyword
   (zone-id [this] (when (= this :default)
@@ -649,7 +649,7 @@
       #<ZoneOffset +03:00>"))
 
 (extend-protocol IZoneOffset
-  guangyin.internal.types.ObjectWrapper
+  guangyin.internal.types.IWrapper
   (zone-offset [this] (zone-offset @this))
   clojure.lang.Keyword
   (zone-offset [this] (wrap (fields/zone-offsets this)))
