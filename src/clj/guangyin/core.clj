@@ -410,12 +410,43 @@
                                             nanosecond)))))
 
 (defn offset-date-time?
-  "Returns true if the given value is a date-time with a zone offset."
+  "Returns true if the given value is a date-time with a zone offset.
+   Examples:
+
+     => (offset-date-time? (offset-date-time :now))
+     true
+     => (offset-date-time? (zoned-date-time :now))
+     false"
   [x] (instance? OffsetDateTime (unwrap x)))
 
 (defprotocol IOffsetDateTime
   (offset-date-time [this] [this param] [date time offset]
-                    [year month day hour minute second nanosecond offset]))
+                    [year month day hour minute second nanosecond offset]
+   "Coerce to date-time with offset.
+    Examples:
+
+     => (offset-date-time :now)
+     #<OffsetDateTime 2015-04-16T12:15:00.123+03:00>
+     => (offset-date-time (clock))
+     #<OffsetDateTime 2015-04-16T12:15:00.123+03:00>
+     => (offset-date-time (zone-id \"Asia/Shanghai\"))
+     #<OffsetDateTime 2015-04-16T17:15:00.123+08:00>
+     => (offset-date-time \"2015-04-16T12:15:00.123+03:00\")
+     #<OffsetDateTime 2015-04-16T12:15:00.123+03:00>
+     => (offset-date-time \"16.04.2015 12.15+0300\" (date-time-formatter \"dd.MM.yyyy HH.mmx\"))
+     #<OffsetDateTime 2015-04-16T12:15+03:00>
+     => (offset-date-time :max)
+     #<OffsetDateTime +999999999-12-31T23:59:59.999999999-18:00>
+     => (offset-date-time (zoned-date-time :now))
+     #<OffsetDateTime 2015-04-16T12:15:00.123+03:00>
+     => (offset-date-time (instant :now) (zone-id \"Asia/Shanghai\"))
+     #<OffsetDateTime 2015-04-16T17:15:00.123+08:00>
+     => (offset-date-time (local-date-time :now) (zone-offset (hours 3)))
+     #<OffsetDateTime 2015-04-16T12:15:00.123+03:00>
+     => (offset-date-time (local-date :now) (local-time :now) (zone-offset (hours 3)))
+     #<OffsetDateTime 2015-04-16T12:15:00.123+03:00>
+     => (offset-date-time 2015 4 16 12 15 0 123000000 (zone-offset (hours 3)))
+     #<OffsetDateTime 2015-04-16T12:15:00.123>"))
 
 (extend-protocol IOffsetDateTime
   guangyin.internal.types.IWrapper
@@ -452,7 +483,13 @@
                                               @(zone-offset offset))))))
 
 (defn zoned-date-time?
-  "Returns true if the given value is a date-time with a time zone."
+  "Returns true if the given value is a date-time with a time zone.
+   Examples:
+
+     => (zoned-date-time? (zoned-date-time :now))
+     true
+     => (zoned-date-time? (offset-date-time :now))
+     false"
   [x] (instance? ZonedDateTime (unwrap x)))
 
 (defprotocol IZonedDateTime

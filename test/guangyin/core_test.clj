@@ -101,3 +101,16 @@
   (is (local-date-time? @(local-date-time 2015 4 16 12 15)))
   (is (local-date-time? @(local-date-time 2015 4 16 12 15 0)))
   (is (local-date-time? @(local-date-time 2015 4 16 12 15 0 123000000))))
+
+(deftest test-offset-date-time
+  (is (offset-date-time? @(offset-date-time :now)))
+  (is (offset-date-time? @(offset-date-time (clock))))
+  (is (offset-date-time? @(offset-date-time (zone-id "Asia/Shanghai"))))
+  (is (offset-date-time? @(offset-date-time "2015-04-16T12:15:00.123+03:00")))
+  (is (offset-date-time? @(offset-date-time "16.04.2015 12.15+0300" (date-time-formatter "dd.MM.yyyy HH.mmx"))))
+  (is (offset-date-time? @(offset-date-time :max)))
+  (is (offset-date-time? @(offset-date-time (zoned-date-time :now))))
+  (is (offset-date-time? @(offset-date-time (instant :now) (zone-id "Asia/Shanghai"))))
+  (is (offset-date-time? @(offset-date-time (local-date-time :now) (zone-offset (hours 3)))))
+  (is (offset-date-time? @(offset-date-time (local-date :now) (local-time :now) (zone-offset (hours 3)))))
+  (is (offset-date-time? @(offset-date-time 2015 4 16 12 15 0 123000000 (zone-offset (hours 3))))))
