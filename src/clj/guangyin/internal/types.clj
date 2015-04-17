@@ -12,11 +12,11 @@
 (prefer-method print-method IWrapper clojure.lang.IDeref)
 (prefer-method print-method IWrapper clojure.lang.IPersistentMap)
 
-(defprotocol IWrappable
+(defprotocol PWrappable
   (wrap [this])
   (unwrap [this]))
 
-(extend-protocol IWrappable
+(extend-protocol PWrappable
   guangyin.internal.types.IWrapper
   (wrap [this] this)
   (unwrap [this] (deref this))

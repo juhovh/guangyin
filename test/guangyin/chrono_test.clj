@@ -12,7 +12,7 @@
 
 (deftest test-hijrah-date
   (is (hijrah-date? @(hijrah-date :now)))
-  (is (hijrah-date? @(hijrah-date (clock))))
+  (is (hijrah-date? @(hijrah-date (clock :default))))
   (is (hijrah-date? @(hijrah-date (zone-id "Asia/Shanghai"))))
   (is (hijrah-date? @(hijrah-date (local-date :now))))
   (is (hijrah-date? @(hijrah-date 1436 6 28))))
@@ -25,7 +25,7 @@
 
 (deftest test-japanese-date
   (is (japanese-date? @(japanese-date :now)))
-  (is (japanese-date? @(japanese-date (clock))))
+  (is (japanese-date? @(japanese-date (clock :default))))
   (is (japanese-date? @(japanese-date (zone-id "Asia/Shanghai"))))
   (is (japanese-date? @(japanese-date (local-date :now))))
   (is (japanese-date? @(japanese-date 2015 4 17)))
@@ -38,7 +38,7 @@
 
 (deftest test-minguo-date
   (is (minguo-date? @(minguo-date :now)))
-  (is (minguo-date? @(minguo-date (clock))))
+  (is (minguo-date? @(minguo-date (clock :default))))
   (is (minguo-date? @(minguo-date (zone-id "Asia/Shanghai"))))
   (is (minguo-date? @(minguo-date (local-date :now))))
   (is (minguo-date? @(minguo-date 104 4 17))))
@@ -49,7 +49,7 @@
 
 (deftest test-thai-buddhist-date
   (is (thai-buddhist-date? @(thai-buddhist-date :now)))
-  (is (thai-buddhist-date? @(thai-buddhist-date (clock))))
+  (is (thai-buddhist-date? @(thai-buddhist-date (clock :default))))
   (is (thai-buddhist-date? @(thai-buddhist-date (zone-id "Asia/Shanghai"))))
   (is (thai-buddhist-date? @(thai-buddhist-date (local-date :now))))
   (is (thai-buddhist-date? @(thai-buddhist-date 2558 4 17))))

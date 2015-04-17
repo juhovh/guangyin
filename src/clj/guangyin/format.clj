@@ -8,10 +8,10 @@
   "Returns true if the given value is a date time formatter."
   [x] (instance? DateTimeFormatter (unwrap x)))
 
-(defprotocol IDateTimeFormatter
+(defprotocol PDateTimeFormatter
   (date-time-formatter [this] [this param]))
 
-(extend-protocol IDateTimeFormatter
+(extend-protocol PDateTimeFormatter
   guangyin.internal.types.IWrapper
   (date-time-formatter [this] (date-time-formatter @this))
   clojure.lang.Keyword

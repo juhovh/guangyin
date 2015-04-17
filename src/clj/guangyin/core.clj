@@ -19,7 +19,7 @@
   [x]
   (instance? Instant (unwrap x)))
 
-(defprotocol IInstant
+(defprotocol PInstant
   (instant [this]
    "Coerce to instant.
     Examples:
@@ -35,7 +35,7 @@
       => (instant (offset-date-time :now)) ; From date-time containing instant
       #<Instant 2015-01-01T12:15:00.123Z>"))
 
-(extend-protocol IInstant
+(extend-protocol PInstant
   guangyin.internal.types.IWrapper
   (instant [this] (instant @this))
   clojure.lang.Keyword
@@ -63,7 +63,7 @@
   [x]
   (instance? Duration (unwrap x)))
 
-(defprotocol IDuration
+(defprotocol PDuration
   (duration [this] [this other]
    "Coerce to duration.
     Notice that duration is only for exact times, if you are working with dates
@@ -85,7 +85,7 @@
       => (duration (local-time :midnight) (local-time :noon))
       #<Duration PT12H>"))
 
-(extend-protocol IDuration
+(extend-protocol PDuration
   guangyin.internal.types.IWrapper
   (duration ([this] (duration @this))
             ([this other] (duration @this other)))
@@ -112,7 +112,7 @@
   [x]
   (instance? Period (unwrap x)))
 
-(defprotocol IPeriod
+(defprotocol PPeriod
   (period [this] [this other]
    "Coerce to period.
     Notice that period is only for days and larger time units. If you want to
@@ -134,7 +134,7 @@
       => (period (local-date \"2015-01-01\") (local-date \"2017-04-12\"))
       #<Period P2Y3M11D>"))
   
-(extend-protocol IPeriod
+(extend-protocol PPeriod
   guangyin.internal.types.IWrapper
   (period ([this] (period @this))
           ([this other] (period @this other)))
@@ -159,7 +159,7 @@
   [x]
   (instance? LocalDate (unwrap x)))
 
-(defprotocol ILocalDate
+(defprotocol PLocalDate
   (local-date [this] [this param] [year month date]
    "Coerce to local date.
     Can also be used to parse a local date using a custom formatter, or to
@@ -183,7 +183,7 @@
       => (local-date 2015 4 1)
       #<LocalDate 2015-04-01>"))
 
-(extend-protocol ILocalDate
+(extend-protocol PLocalDate
   guangyin.internal.types.IWrapper
   (local-date [this] (local-date @this))
   clojure.lang.Keyword
@@ -213,7 +213,7 @@
   [x]
   (instance? LocalTime (unwrap x)))
 
-(defprotocol ILocalTime
+(defprotocol PLocalTime
   (local-time [this] [this param] [hour minute second]
               [hour minute second nanosecond]
    "Coerce to local time.
@@ -244,7 +244,7 @@
       => (local-time 12 15 0 123000000)
       #<LocalTime 12:15:00.123>"))
 
-(extend-protocol ILocalTime
+(extend-protocol PLocalTime
   guangyin.internal.types.IWrapper
   (local-time [this] (local-time @this))
   clojure.lang.Keyword
@@ -276,7 +276,7 @@
      false"
   [x] (instance? OffsetTime (unwrap x)))
 
-(defprotocol IOffsetTime
+(defprotocol POffsetTime
   (offset-time [this] [this param] [hour minute second nanosecond offset]
    "Coerce to time with offset.
     Can also be used to parse a time with offset using a custom formatter, or to
@@ -304,7 +304,7 @@
       => (offset-time 12 15 0 123000000 (zone-offset (hours 3)))
       #<OffsetTime 12:15:00.123+03:00>"))
 
-(extend-protocol IOffsetTime
+(extend-protocol POffsetTime
   guangyin.internal.types.IWrapper
   (offset-time ([this] (offset-time @this))
                ([this param] (offset-time @this param)))
@@ -342,7 +342,7 @@
      false"
   [x] (instance? LocalDateTime (unwrap x)))
 
-(defprotocol ILocalDateTime
+(defprotocol PLocalDateTime
   (local-date-time [this] [this param] [year month day hour minute]
                    [year month day hour minute second]
                    [year month day hour minute second nanosecond]
@@ -374,7 +374,7 @@
      => (local-date-time 2015 4 16 12 15 0 123000000)
      #<LocalDateTime 2015-04-16T12:15:00.123>"))
 
-(extend-protocol ILocalDateTime
+(extend-protocol PLocalDateTime
   guangyin.internal.types.IWrapper
   (local-date-time ([this] (local-date-time @this))
                    ([this param] (local-date-time @this param)))
@@ -418,7 +418,7 @@
      false"
   [x] (instance? OffsetDateTime (unwrap x)))
 
-(defprotocol IOffsetDateTime
+(defprotocol POffsetDateTime
   (offset-date-time [this] [this param] [date time offset]
                     [year month day hour minute second nanosecond offset]
    "Coerce to date-time with offset.
@@ -447,7 +447,7 @@
      => (offset-date-time 2015 4 16 12 15 0 123000000 (zone-offset (hours 3)))
      #<OffsetDateTime 2015-04-16T12:15:00.123>"))
 
-(extend-protocol IOffsetDateTime
+(extend-protocol POffsetDateTime
   guangyin.internal.types.IWrapper
   (offset-date-time ([this] (offset-date-time @this))
                     ([this param] (offset-date-time @this param))
@@ -492,7 +492,7 @@
      false"
   [x] (instance? ZonedDateTime (unwrap x)))
 
-(defprotocol IZonedDateTime
+(defprotocol PZonedDateTime
   (zoned-date-time [this] [this param] [date time zone]
                    [year month day hour minute second nanosecond zone]
    "Coerce to date-time with zone.
@@ -520,7 +520,7 @@
       => (zoned-date-time 2015 4 16 12 15 0 123000000 (zone-id \"Europe/Helsinki\"))
       #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>"))
 
-(extend-protocol IZonedDateTime
+(extend-protocol PZonedDateTime
   guangyin.internal.types.IWrapper
   (zoned-date-time ([this] (zoned-date-time @this))
                    ([this param] (zoned-date-time @this param))
@@ -558,7 +558,7 @@
   "Returns true if the given value is an exact year."
   [x] (instance? Year (unwrap x)))
 
-(defprotocol IYear
+(defprotocol PYear
   (year [this] [this param]
    "Coerce to year.
     Examples:
@@ -580,7 +580,7 @@
       => (year 2015)
       #<Year 2015>"))
 
-(extend-protocol IYear
+(extend-protocol PYear
   guangyin.internal.types.IWrapper
   (year [this] (year @this))
   clojure.lang.Keyword
@@ -606,7 +606,7 @@
   "Returns true if the given value is a combination of year and month."
   [x] (instance? YearMonth (unwrap x)))
 
-(defprotocol IYearMonth
+(defprotocol PYearMonth
   (year-month [this] [year month]
    "Coerce to year and month.
     Examples:
@@ -626,7 +626,7 @@
       => (year-month 2015 4)
       #<YearMonth 2015-04>"))
 
-(extend-protocol IYearMonth
+(extend-protocol PYearMonth
   guangyin.internal.types.IWrapper
   (year-month [this] (year-month @this))
   clojure.lang.Keyword
@@ -656,7 +656,7 @@
      false"
   [x] (instance? Month (unwrap x)))
 
-(defprotocol IMonth
+(defprotocol PMonth
   (month [this]
    "Coerce to month.
     Examples:
@@ -674,7 +674,7 @@
       => (month :december)
       #<Month DECEMBER>"))
 
-(extend-protocol IMonth
+(extend-protocol PMonth
   guangyin.internal.types.IWrapper
   (month [this] (month @this))
   clojure.lang.Keyword
@@ -694,7 +694,7 @@
   "Returns true if the given value is a combination of month and day of month."
   [x] (instance? MonthDay (unwrap x)))
 
-(defprotocol IMonthDay
+(defprotocol PMonthDay
   (month-day [this] [month day]
    "Coerce to month and day.
     Examples:
@@ -714,7 +714,7 @@
       => (month-day 4 16)
       #<MonthDay --04-16>"))
 
-(extend-protocol IMonthDay
+(extend-protocol PMonthDay
   guangyin.internal.types.IWrapper
   (month-day ([this] (month-day @this))
              ([month day] (month-day @month day)))
@@ -747,7 +747,7 @@
      false"
   [x] (instance? DayOfWeek (unwrap x)))
 
-(defprotocol IDayOfWeek
+(defprotocol PDayOfWeek
   (day-of-week [this]
    "Coerce to day of week.
     Examples:
@@ -759,7 +759,7 @@
       => (day-of-week :monday)
       => (day-of-week :saturday)"))
 
-(extend-protocol IDayOfWeek
+(extend-protocol PDayOfWeek
   guangyin.internal.types.IWrapper
   (day-of-week [this] (day-of-week @this))
   clojure.lang.Keyword
@@ -787,7 +787,7 @@
      false"
   [x] (instance? ZoneId (unwrap x)))
 
-(defprotocol IZoneId
+(defprotocol PZoneId
   (zone-id [this] [this param]
    "Create zone-id from values.
     If created from prefix and offset, the valid prefix values are \"GMT\",
@@ -804,7 +804,7 @@
       => (zone-id \"UTC\" (zone-offset \"+08:00\")) ; For completeness
       #<ZoneRegion UTC+08:00>"))
 
-(extend-protocol IZoneId
+(extend-protocol PZoneId
   guangyin.internal.types.IWrapper
   (zone-id [this] (zone-id @this))
   clojure.lang.Keyword
@@ -831,7 +831,7 @@
      false"
   [x] (instance? ZoneOffset (unwrap x)))
 
-(defprotocol IZoneOffset
+(defprotocol PZoneOffset
   (zone-offset [this] [hours minutes]
    "Coerce to zone-offset.
     Getting current offset can be found using offset-time, however for current
@@ -847,7 +847,7 @@
       => (zone-offset (offset-time :now)) ; Current offset
       #<ZoneOffset +03:00>"))
 
-(extend-protocol IZoneOffset
+(extend-protocol PZoneOffset
   guangyin.internal.types.IWrapper
   (zone-offset [this] (zone-offset @this))
   clojure.lang.Keyword
@@ -870,28 +870,36 @@
   "Returns true if the given value is a clock instance."
   [x] (instance? Clock (unwrap x)))
 
-(defn clock
-  "Creates a clock instance.
-   Examples:
+(defprotocol PClock
+  (clock [this] [this param]
+   "Creates a clock instance.
+    Examples:
 
-     => (clock) ; System default zone
-     #<SystemClock SystemClock[Europe/Helsinki]>
-     => (clock (zone-id \"Asia/Shanghai\"))
-     #<SystemClock SystemClock[Asia/Shanghai]>
-     => (clock (instant :now) (zone-id \"Asia/Shanghai\"))
-     #<FixedClock FixedClock[2015-04-01T10:15:00.123Z,Asia/Shanghai]>
-     => (clock (clock) (hours 3)) ; Clock 3 hours ahead
-     #<OffsetClock OffsetClock[SystemClock[Europe/Helsinki],PT3H]>"
-  ([]
-   (wrap (Clock/systemDefaultZone)))
-  ([x]
-   (wrap (Clock/system @(zone-id x))))
-  ([instant-or-clock zone-or-duration]
-   (wrap (if (instant? instant-or-clock)
-             (Clock/fixed (unwrap instant-or-clock)
-                          @(zone-id zone-or-duration))
-             (Clock/offset (unwrap instant-or-clock)
-                           @(duration zone-or-duration))))))
+      => (clock :default) ; System default zone
+      #<SystemClock SystemClock[Europe/Helsinki]>
+      => (clock (zone-id \"Asia/Shanghai\"))
+      #<SystemClock SystemClock[Asia/Shanghai]>
+      => (clock (instant :now) (zone-id \"Asia/Shanghai\"))
+      #<FixedClock FixedClock[2015-04-01T10:15:00.123Z,Asia/Shanghai]>
+      => (clock (clock) (hours 3)) ; Clock 3 hours ahead
+      #<OffsetClock OffsetClock[SystemClock[Europe/Helsinki],PT3H]>"))
+
+(extend-protocol PClock
+  guangyin.internal.types.IWrapper
+  (clock ([this] (clock @this))
+         ([this param] (clock @this param)))
+  clojure.lang.Keyword
+  (clock [this] (if (= this :default)
+                    (wrap (Clock/systemDefaultZone))
+                    (throw (IllegalArgumentException.
+                             (str "Invalid key " this)))))
+  java.time.ZoneId
+  (clock [this] (wrap (Clock/system this)))
+  java.time.Instant
+  (clock [this param] (wrap (Clock/fixed this @(zone-id param))))
+  java.time.Clock
+  (clock ([this] (wrap this))
+         ([this param] (wrap (Clock/offset this @(duration param))))))
 
 (defn years
   "Create a period of given years."

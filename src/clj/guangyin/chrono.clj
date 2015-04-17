@@ -35,7 +35,7 @@
   [x]
   (instance? HijrahDate (unwrap x)))
 
-(defprotocol IHijrahDate
+(defprotocol PHijrahDate
   (hijrah-date [this] [year month day]
    "Coerce to Hijri calendar date.
     Examples:
@@ -51,7 +51,7 @@
       => (hijrah-date 1436 6 28)
       #<HijrahDate Hijrah-umalqura AH 1436-06-28>"))
 
-(extend-protocol IHijrahDate
+(extend-protocol PHijrahDate
   guangyin.internal.types.IWrapper
   (hijrah-date [this] (hijrah-date @this))
   clojure.lang.Keyword
@@ -92,7 +92,7 @@
   [x]
   (instance? JapaneseDate (unwrap x)))
 
-(defprotocol IJapaneseDate
+(defprotocol PJapaneseDate
   (japanese-date [this] [year month day] [era year month day]
    "Coerce to Japanese calendar date.
     Examples:
@@ -112,7 +112,7 @@
       => (japanese-date (japanese-era :showa) 27 4 17)
       #<JapaneseDate Japanese Showa 27-04-17>"))
 
-(extend-protocol IJapaneseDate
+(extend-protocol PJapaneseDate
   guangyin.internal.types.IWrapper
   (japanese-date ([this] (japanese-date @this))
                  ([era year month day] (japanese-date @era year month day)))
@@ -155,7 +155,7 @@
   [x]
   (instance? MinguoDate (unwrap x)))
 
-(defprotocol IMinguoDate
+(defprotocol PMinguoDate
   (minguo-date [this] [year month day]
    "Coerce to Minguo calendar date.
     Examples:
@@ -171,7 +171,7 @@
       => (minguo-date 104 4 17)
       #<MinguoDate Minguo ROC 104-04-17>"))
 
-(extend-protocol IMinguoDate
+(extend-protocol PMinguoDate
   guangyin.internal.types.IWrapper
   (minguo-date [this] (minguo-date @this))
   clojure.lang.Keyword
@@ -208,7 +208,7 @@
   [x]
   (instance? ThaiBuddhistDate (unwrap x)))
 
-(defprotocol IThaiBuddhistDate
+(defprotocol PThaiBuddhistDate
   (thai-buddhist-date [this] [year month day]
    "Coerce to Thai buddhist calendar date.
     Examples:
@@ -224,7 +224,7 @@
       => (thai-buddhist-date 2558 4 17)
       #<ThaiBuddhistDate ThaiBuddhist BE 2558-04-17>"))
 
-(extend-protocol IThaiBuddhistDate
+(extend-protocol PThaiBuddhistDate
   guangyin.internal.types.IWrapper
   (thai-buddhist-date [this] (thai-buddhist-date @this))
   clojure.lang.Keyword
