@@ -11,8 +11,11 @@ the old Chinese name for time, Guangyin.
 
 ## Disclaimer
 
-This library is very much work in progress. It is not recommended to use it
-in a project before this disclaimer is removed.
+The library is currently in a beta stage. This means that the API might change a
+bit and there is some functionality still missing. That is because personally I
+believe in API design coming from real needs. So if you find something weird in
+the API or it doesn't work as you expected, please open an issue and let's fix
+it together!
 
 ## Design Principles
 
