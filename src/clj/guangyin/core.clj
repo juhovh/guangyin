@@ -884,72 +884,75 @@
              (Clock/offset instant-or-clock (duration zone-or-duration))))))
 
 (defn years
+  "Create a period of given years."
   [years]
   (wrap (Period/ofYears years)))
 
 (defn months
+  "Create a period of given months."
   [months]
   (wrap (Period/ofMonths months)))
 
 (defn weeks
+  "Create a period of given weeks converted to days."
   [weeks]
   (wrap (Period/ofWeeks weeks)))
 
 (defn days
+  "Create a period of given days."
   [days]
   (wrap (Period/ofDays days)))
 
 (defn hours
+  "Create a duration of given hours."
   [hours]
   (wrap (Duration/ofHours hours)))
 
 (defn minutes
+  "Create a duration of given minutes."
   [minutes]
   (wrap (Duration/ofMinutes minutes)))
 
 (defn seconds
+  "Create a duration of given seconds."
   [seconds]
   (wrap (Duration/ofSeconds seconds)))
 
 (defn millis
+  "Create a duration of given milliseconds."
   [millis]
   (wrap (Duration/ofMillis millis)))
 
 (defn nanos
+  "Create a duration of given nanoseconds."
   [nanos]
   (wrap (Duration/ofNanos nanos)))
 
 (defn- fplus
-  ([] 0)
-  ([x] (wrap x))
   ([x [key val]]
-   (.plus (unwrap x) val (fields/get-field fields/all-units key)))
+   (wrap (.plus (unwrap x) val (fields/get-field fields/all-units key))))
   ([x keyval & more]
    (reduce fplus (fplus x keyval) more)))
 
 (defn plus
-  ([] 0)
   ([x] (wrap x))
-  ([x y] (if (map? y)
-             (apply fplus x (seq y))
-             (.plus (unwrap x) (unwrap y))))
+  ([x y] (if (map? (unwrap y))
+             (apply fplus x (seq (unwrap y)))
+             (wrap (.plus (unwrap x) (unwrap y)))))
   ([x y & more]
    (reduce plus (plus x y) more)))
 
 (defn- fminus
-  ([] 0)
-  ([x] (wrap x))
   ([x [key val]]
-   (.minus (unwrap x) val (fields/get-field fields/all-units key)))
+   (wrap (.minus (unwrap x) val (fields/get-field fields/all-units key))))
   ([x keyval & more]
    (reduce fminus (fminus x keyval) more)))
 
 (defn minus
-  ([] 0)
   ([x] (wrap x))
-  ([x y] (if (map? y)
-             (apply fminus x (seq y))
-             (.minus (unwrap x) (unwrap y))))
+  ([x y] (if (map? (unwrap y))
+             (apply fminus x (seq (unwrap y)))
+             (wrap (.minus (unwrap x) (unwrap y)))))
   ([x y & more]
    (reduce minus (minus x y) more)))
 

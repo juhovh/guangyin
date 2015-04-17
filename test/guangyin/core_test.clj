@@ -37,6 +37,8 @@
   (is (duration? @(hours 2)))
   (is (duration? @(minutes 2)))
   (is (duration? @(seconds 2)))
+  (is (duration? @(millis 2)))
+  (is (duration? @(nanos 2)))
   (is (= (:hours (duration "PT2H3M4S")) 2))
   (is (= (:minutes (duration "PT2H3M4S")) 123))
   (is (= (:seconds (duration "PT2H3M4S")) 7384)))
@@ -170,3 +172,32 @@
   (is (day-of-week? @(day-of-week :monday)))
   (is (day-of-week? @(day-of-week :saturday))))
 
+(deftest test-plus
+  (is (= @(period "P1D") @(plus (period "P1D"))))
+  (is (= @(period "P3D") @(plus (days 1) (days 2))))
+  (is (= @(period "P3M1D") @(plus (months 1) (months 2) (days 1))))
+  (is (= @(duration "PT3H") @(plus (hours 1) (hours 2))))
+  (is (= @(duration "PT3H1M") @(plus (hours 1) (hours 2) (minutes 1))))
+  (is (= @(duration "PT3H") @(plus (hours 1) {:hours 2})))
+  (is (= @(duration "PT3H1M") @(plus (hours 1) {:hours 2} (minutes 1))))
+  (is (= @(duration "PT3H1M") @(plus (hours 1) {:hours 2} {:minutes 1})))
+  (is (= @(duration "PT3H1M") @(plus (hours 1) {:hours 2 :minutes 1}))))
+
+(deftest test-minus
+  (is (= @(period "P1D") @(minus (period "P1D"))))
+  (is (= @(period "P2D") @(minus (days 3) (days 1))))
+  (is (= @(period "P3M") @(minus (period "P3M1D") (days 1))))
+  (is (= @(duration "PT1H") @(minus (hours 3) (hours 2))))
+  (is (= @(duration "PT1H") @(minus (duration "PT3H1M") (hours 2) (minutes 1))))
+  (is (= @(duration "PT1H") @(minus (hours 3) {:hours 2})))
+  (is (= @(duration "PT1H") @(minus (duration "PT3H1M") {:hours 2} (minutes 1))))
+  (is (= @(duration "PT1H") @(minus (duration "PT3H1M") {:hours 2} {:minutes 1})))
+  (is (= @(duration "PT1H") @(minus (duration "PT3H1M") {:hours 2 :minutes 1}))))
+
+(deftest test-multiplied-by
+  (is (= @(period "P2Y4M6D") @(multiplied-by (period "P1Y2M3D") 2)))
+  (is (= @(duration "PT3H6M9S") @(multiplied-by (duration "PT1H2M3S") 3))))
+  
+(deftest test-divided-by
+  (is (= @(duration "PT1H2M3S") @(divided-by (duration "PT2H4M6S") 2)))
+  (is (= @(duration "PT1H2M3S") @(divided-by (duration "PT3H6M9S") 3))))
