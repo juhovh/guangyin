@@ -13,8 +13,7 @@
 
 (extend-protocol IDateTimeFormatter
   guangyin.internal.types.IWrapper
-  (date-time-formatter ([this] (date-time-formatter @this))
-                       ([this param] (date-time-formatter @this param)))
+  (date-time-formatter [this] (date-time-formatter @this))
   clojure.lang.Keyword
   (date-time-formatter [this]
     (wrap (fields/get-field fields/date-time-formatters this)))
