@@ -114,3 +114,59 @@
   (is (offset-date-time? @(offset-date-time (local-date-time :now) (zone-offset (hours 3)))))
   (is (offset-date-time? @(offset-date-time (local-date :now) (local-time :now) (zone-offset (hours 3)))))
   (is (offset-date-time? @(offset-date-time 2015 4 16 12 15 0 123000000 (zone-offset (hours 3))))))
+
+(deftest test-zoned-date-time
+  (is (zoned-date-time? @(zoned-date-time :now)))
+  (is (zoned-date-time? @(zoned-date-time (clock))))
+  (is (zoned-date-time? @(zoned-date-time (zone-id "Asia/Shanghai"))))
+  (is (zoned-date-time? @(zoned-date-time "2015-04-16T12:15:00.123+03:00[Europe/Helsinki]")))
+  (is (zoned-date-time? @(zoned-date-time "2015-04-16T12:15:00.123+03:00[Europe/Helsinki]" (date-time-formatter :iso-date-time))))
+  (is (zoned-date-time? @(zoned-date-time (instant :now) (zone-id "Europe/Helsinki"))))
+  (is (zoned-date-time? @(zoned-date-time (local-date-time :now) (zone-id "Europe/Helsinki"))))
+  (is (zoned-date-time? @(zoned-date-time (local-date :now) (local-time :now) (zone-id "Europe/Helsinki"))))
+  (is (zoned-date-time? @(zoned-date-time 2015 4 16 12 15 0 123000000 (zone-id "Europe/Helsinki")))))
+
+(deftest test-year
+  (is (year? @(year :now)))
+  (is (year? @(year (clock))))
+  (is (year? @(year (zone-id "Asia/Shanghai"))))
+  (is (year? @(year "2015")))
+  (is (year? @(year "2015" (date-time-formatter "yyyy"))))
+  (is (year? @(year :max)))
+  (is (year? @(year (local-date :now))))
+  (is (year? @(year 2015))))
+
+(deftest test-year-month
+  (is (year-month? @(year-month :now)))
+  (is (year-month? @(year-month (clock))))
+  (is (year-month? @(year-month (zone-id "Asia/Shanghai"))))
+  (is (year-month? @(year-month "2015-04")))
+  (is (year-month? @(year-month "04.2015" (date-time-formatter "MM.yyyy"))))
+  (is (year-month? @(year-month (local-date :now))))
+  (is (year-month? @(year-month 2015 4))))
+
+(deftest test-month
+  (is (month? @(month :now)))
+  (is (month? @(month (clock))))
+  (is (month? @(month (zone-id "Asia/Shanghai"))))
+  (is (month? @(month (local-date :now))))
+  (is (month? @(month :january)))
+  (is (month? @(month :december))))
+
+(deftest test-month-day
+  (is (month-day? @(month-day :now)))
+  (is (month-day? @(month-day (clock))))
+  (is (month-day? @(month-day (zone-id "Asia/Shanghai"))))
+  (is (month-day? @(month-day "--04-16")))
+  (is (month-day? @(month-day "16.04." (date-time-formatter "dd.MM."))))
+  (is (month-day? @(month-day (local-date :now))))
+  (is (month-day? @(month-day 4 16))))
+
+(deftest test-day-of-week
+  (is (day-of-week? @(day-of-week :now)))
+  (is (day-of-week? @(day-of-week (clock))))
+  (is (day-of-week? @(day-of-week (zone-id "Asia/Shanghai"))))
+  (is (day-of-week? @(day-of-week (local-date :now))))
+  (is (day-of-week? @(day-of-week :monday)))
+  (is (day-of-week? @(day-of-week :saturday))))
+

@@ -496,7 +496,31 @@
 
 (defprotocol IZonedDateTime
   (zoned-date-time [this] [this param] [date time zone]
-                   [year month day hour minute second nanosecond zone]))
+                   [year month day hour minute second nanosecond zone]
+   "Coerce to date-time with zone.
+    Examples:
+
+      => (zoned-date-time :now)
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time (clock))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time (zone-id \"Asia/Shanghai\"))
+      #<ZonedDateTime 2015-04-16T17:15:00.123+08:00[Asia/Shanghai]>
+      => (zoned-date-time \"2015-04-16T12:15:00.123+03:00[Europe/Helsinki]\")
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time \"2015-04-16T12:15:00.123+03:00[Europe/Helsinki]\"
+           (date-time-formatter :iso-date-time))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time (instant :now) (zone-offset (hours 3)))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00>
+      => (zoned-date-time (instant :now) (zone-id \"Europe/Helsinki\"))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time (local-date-time :now) (zone-id \"Europe/Helsinki\"))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time (local-date :now) (local-time :now) (zone-id \"Europe/Helsinki\"))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>
+      => (zoned-date-time 2015 4 16 12 15 0 123000000 (zone-id \"Europe/Helsinki\"))
+      #<ZonedDateTime 2015-04-16T12:15:00.123+03:00[Europe/Helsinki]>"))
 
 (extend-protocol IZonedDateTime
   guangyin.internal.types.IWrapper
@@ -537,16 +561,38 @@
   [x] (instance? Year (unwrap x)))
 
 (defprotocol IYear
-  (year [this] [this param]))
+  (year [this] [this param]
+   "Coerce to year.
+    Examples:
+
+      => (year :now)
+      #<Year 2015>
+      => (year (clock))
+      #<Year 2015>
+      => (year (zone-id \"Asia/Shanghai\"))
+      #<Year 2015>
+      => (year \"2015\")
+      #<Year 2015>
+      => (year \"2015\" (date-time-formatter \"yyyy\"))
+      #<Year 2015>
+      => (year :max)
+      #<Year 999999999>
+      => (year (local-date :now))
+      #<Year 2015>
+      => (year 2015)
+      #<Year 2015>"))
 
 (extend-protocol IYear
   guangyin.internal.types.IWrapper
   (year ([this] (year @this))
         ([this param] (year @this param)))
   clojure.lang.Keyword
-  (year [this] (if (= this :now)
-                   (wrap (Year/now))
-                   (wrap (fields/get-field fields/years this))))
+  (year [this] (case this
+                 :now (wrap (Year/now))
+                 :min (wrap (Year/of (fields/year-values :min-value)))
+                 :max (wrap (Year/of (fields/year-values :max-value)))
+                 (throw (IllegalArgumentException.
+                          (str "Invalid key " this)))))
   java.time.temporal.TemporalAccessor
   (year [this] (wrap (Year/from this)))
   java.time.Clock
@@ -557,14 +603,31 @@
   (year ([this] (wrap (Year/parse this)))
         ([this param] (wrap (Year/parse this (unwrap param)))))
   java.lang.Long
-  (year [this] (Year/of this)))
+  (year [this] (wrap (Year/of this))))
 
 (defn year-month?
   "Returns true if the given value is a combination of year and month."
   [x] (instance? YearMonth (unwrap x)))
 
 (defprotocol IYearMonth
-  (year-month [this] [year month]))
+  (year-month [this] [year month]
+   "Coerce to year and month.
+    Examples:
+
+      => (year-month :now)
+      #<YearMonth 2015-04>
+      => (year-month (clock))
+      #<YearMonth 2015-04>
+      => (year-month (zone-id \"Asia/Shanghai\"))
+      #<YearMonth 2015-04>
+      => (year-month \"2015-04\")
+      #<YearMonth 2015-04>
+      => (year-month \"04.2015\" (date-time-formatter \"MM.yyyy\"))
+      #<YearMonth 2015-04>
+      => (year-month (local-date :now))
+      #<YearMonth 2015-04>
+      => (year-month 2015 4)
+      #<YearMonth 2015-04>"))
 
 (extend-protocol IYearMonth
   guangyin.internal.types.IWrapper
@@ -597,7 +660,22 @@
   [x] (instance? Month (unwrap x)))
 
 (defprotocol IMonth
-  (month [this]))
+  (month [this]
+   "Coerce to month.
+    Examples:
+
+      => (month :now)
+      #<Month APRIL>
+      => (month (clock))
+      #<Month APRIL>
+      => (month (zone-id \"Asia/Shanghai\"))
+      #<Month APRIL>
+      => (month (local-date :now))
+      #<Month APRIL>
+      => (month :january)
+      #<Month JANUARY>
+      => (month :december)
+      #<Month DECEMBER>"))
 
 (extend-protocol IMonth
   guangyin.internal.types.IWrapper
@@ -620,7 +698,24 @@
   [x] (instance? MonthDay (unwrap x)))
 
 (defprotocol IMonthDay
-  (month-day [this] [month day]))
+  (month-day [this] [month day]
+   "Coerce to month and day.
+    Examples:
+
+      => (month-day :now)
+      #<MonthDay --04-16>
+      => (month-day (clock))
+      #<MonthDay --04-16>
+      => (month-day (zone-id \"Asia/Shanghai\"))
+      #<MonthDay --04-16>
+      => (month-day \"--04-16\")
+      #<MonthDay --04-16>
+      => (month-day \"16.04.\" (date-time-formatter \"dd.MM.\"))
+      #<MonthDay --04-16>
+      => (month-day (local-date :now))
+      #<MonthDay --04-16>
+      => (month-day 4 16)
+      #<MonthDay --04-16>"))
 
 (extend-protocol IMonthDay
   guangyin.internal.types.IWrapper
@@ -656,7 +751,16 @@
   [x] (instance? DayOfWeek (unwrap x)))
 
 (defprotocol IDayOfWeek
-  (day-of-week [this]))
+  (day-of-week [this]
+   "Coerce to day of week.
+    Examples:
+
+      => (day-of-week :now)
+      => (day-of-week (clock))
+      => (day-of-week (zone-id \"Asia/Shanghai\"))
+      => (day-of-week (local-date :now))
+      => (day-of-week :monday)
+      => (day-of-week :saturday)"))
 
 (extend-protocol IDayOfWeek
   guangyin.internal.types.IWrapper
