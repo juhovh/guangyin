@@ -9,6 +9,7 @@
   [obj writer]
   (print-method @obj writer))
 
+(prefer-method print-method IWrapper clojure.lang.IDeref)
 (prefer-method print-method IWrapper clojure.lang.IPersistentMap)
 
 (defprotocol IWrappable

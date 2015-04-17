@@ -871,6 +871,17 @@
   [x] (instance? Clock (unwrap x)))
 
 (defn clock
+  "Creates a clock instance.
+   Examples:
+
+     => (clock) ; System default zone
+     #<SystemClock SystemClock[Europe/Helsinki]>
+     => (clock (zone-id \"Asia/Shanghai\"))
+     #<SystemClock SystemClock[Asia/Shanghai]>
+     => (clock (instant :now) (zone-id \"Asia/Shanghai\"))
+     #<FixedClock FixedClock[2015-04-01T10:15:00.123Z,Asia/Shanghai]>
+     => (clock (clock) (hours 3)) ; Clock 3 hours ahead
+     #<OffsetClock OffsetClock[SystemClock[Europe/Helsinki],PT3H]>"
   ([]
    (wrap (Clock/systemDefaultZone)))
   ([x]
@@ -934,6 +945,34 @@
    (reduce fplus (fplus x keyval) more)))
 
 (defn plus
+  "Add periods or durations to supported objects.
+   Examples:
+
+     => (plus (days 1) (months 4))
+     #<Period P4M1D>
+     => (plus (hours 1) (minutes 3))
+     #<Duration PT1H3M>
+     => (plus (local-date \"2015-04-01\") (days 5))
+     #<LocalDate 2015-04-06>
+
+   For non-ISO dates one can not add ISO periods, but adding single fields using
+   field-value maps works. However, this does not work for ISO periods at the
+   moment although durations and date-times are ok:
+
+     => (plus (minguo-date :now) (days 5))
+     DateTimeException Chronology mismatch, expected: ISO, actual: Minguo
+       java.time.Period.validateChrono (Period.java:971)
+     => (plus (minguo-date :now) {:days 5})
+     #<MinguoDate Minguo ROC 104-04-6>
+     => (plus (days 5) {:months 5})
+     IllegalArgumentException No matching method found: plus for class
+       java.time.Period  clojure.lang.Reflector.invokeMatchingMethod
+       (Reflector.java:53)
+     => (plus (hours 3) {:minutes 4 :seconds 5})
+     #<Duration PT3H4M5S>
+     => (plus (local-date-time \"2015-04-01T12:15:00\")
+              {:days 1 :hours 3} {:minutes 5 :seconds 2})
+     #<LocalDateTime 2015-04-02T15:20:02>"
   ([x] (wrap x))
   ([x y] (if (map? (unwrap y))
              (apply fplus x (seq (unwrap y)))
@@ -948,6 +987,16 @@
    (reduce fminus (fminus x keyval) more)))
 
 (defn minus
+  "Add periods or durations to supported objects. For more information see the
+   plus function, which works the same way.
+   Examples:
+
+     => (minus (days 1) (months 1))
+     #<Period P-1M1D>
+     => (minus (hours 3) (minutes 30))
+     #<Duration PT2H30M>
+     => (minus (local-date \"2015-04-01\") (days 3))
+     #<LocalDate 2015-03-29>"
   ([x] (wrap x))
   ([x y] (if (map? (unwrap y))
              (apply fminus x (seq (unwrap y)))
@@ -956,9 +1005,19 @@
    (reduce minus (minus x y) more)))
 
 (defn multiplied-by
+  "Multiply a period or duration by constant.
+   Examples:
+
+     => (multiplied-by (plus (months 1) (days 2)) 3)
+     #<Period P3M6D>"
   [x ^long multiplicand]
   (wrap (.multipliedBy (unwrap x) multiplicand)))
 
 (defn divided-by
+  "Divide a duration by constant.
+   Examples:
+
+     => (divide-by (hours 2) 2)
+     #<Duration PT1H>"
   [x ^long divisor]
   (wrap (.dividedBy (unwrap x) divisor)))

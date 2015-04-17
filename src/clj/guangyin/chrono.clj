@@ -164,7 +164,7 @@
       #<MinguoDate Minguo ROC 104-04-17>
       => (minguo-date (clock))
       #<MinguoDate Minguo ROC 104-04-17>
-      => (minguo-date (zone-id "Asia/Shanghai"))
+      => (minguo-date (zone-id \"Asia/Shanghai\"))
       #<MinguoDate Minguo ROC 104-04-17>
       => (minguo-date (local-date :now))
       #<MinguoDate Minguo ROC 104-04-17>
