@@ -9,6 +9,69 @@ translates to "time is money, but money can't buy time". Whenever working with
 date and time handling it is important to have respect for time itself. Hence
 the old Chinese name for time, Guangyin.
 
+## Usage
+
+The most common usage is quite simple, you can parse combine and format types:
+
+```
+=> (local-date "2015-01-01")
+#<LocalDate 2015-01-01>
+=> (instant "2015-01-01T00:00:00Z")
+#<Instant 2015-01-01T00:00:00Z>
+=> (zoned-date-time (instant "2015-01-01T00:00:00Z") "Europe/Helsinki")
+#<ZonedDateTime 2015-01-01T02:00+02:00[Europe/Helsinki]>
+=> (str (plus (instant "2015-01-01T00:00:00Z") (hours 3)))
+"2015-01-01T03:00:00Z"
+```
+
+You can also use them as you would use maps:
+
+```
+=> (into {} (local-date "2015-01-01"))
+{:proleptic-month 24180, :aligned-week-of-month 1, :julian-day 2457024,
+:week-based-year 2015, :epoch-day 16436, :aligned-week-of-year 1, :era 1,
+:rata-die 735599, :day-of-week 4, :month-of-year 1,
+:aligned-day-of-week-in-month 1, :day-of-month 1, :year 2015, :day-of-year 1,
+:day-of-quarter 1, :year-of-era 2015, :aligned-day-of-week-in-year 1,
+:modified-julian-day 57023, :week-of-week-based-year 1, :quarter-of-year 1}
+=> (:month-of-year (local-date "2015-01-01"))
+1
+=> (day-of-week (local-date "2015-01-01"))
+#<DayOfWeek THURSDAY>
+=> (assoc (local-date "2015-01-01") :day-of-month 15)
+#<LocalDate 2015-01-15>
+=> (merge (local-date "2015-01-01") (month :december))
+#<LocalDate 2015-12-01>
+=> (merge (local-date "2015-01-01") {:year 2016 :quarter-of-year 2})
+#<LocalDate 2016-04-01>
+=> (merge (local-date "2015-01-01") (day-of-week :monday))
+#<LocalDate 2014-12-29>
+```
+
+And you can naturally always use the system time and zone:
+
+```
+=> (str (instant :now))
+"2015-01-01T00:00:00.000Z"
+=> (str (offset-date-time :now))
+"2015-01-01T03:00:00.000+03:00"
+```
+
+The returned objects are wrapped, but it is easy to get the Java object by
+simple dereferencing the returned object. All functions accept both wrapped and
+Java objects as arguments.
+
+```
+=> (class (local-time :now))
+guangyin.internal.types.TemporalWrapper
+=> (class @(local-time :now))
+java.time.LocalTime
+=> (local-time (local-date-time :now))
+#<LocalTime 00:00:00.000>
+=> (local-time (java.time.LocalDateTime/now))
+#<LocalTime 00:00:00.000>
+```
+
 For more information, please see [API documentation](http://juhovh.github.io/guangyin/doc/).
 
 ## Disclaimer
