@@ -185,8 +185,7 @@
 
 (extend-protocol ILocalDate
   guangyin.internal.types.IWrapper
-  (local-date ([this] (local-date @this))
-              ([this param] (local-date @this param)))
+  (local-date [this] (local-date @this))
   clojure.lang.Keyword
   (local-date [this] (if (= this :now)
                          (wrap (LocalDate/now))
@@ -247,8 +246,7 @@
 
 (extend-protocol ILocalTime
   guangyin.internal.types.IWrapper
-  (local-time ([this] (local-time @this))
-              ([this param] (local-time @this param)))
+  (local-time [this] (local-time @this))
   clojure.lang.Keyword
   (local-time [this] (if (= this :now)
                          (wrap (LocalTime/now))
@@ -584,8 +582,7 @@
 
 (extend-protocol IYear
   guangyin.internal.types.IWrapper
-  (year ([this] (year @this))
-        ([this param] (year @this param)))
+  (year [this] (year @this))
   clojure.lang.Keyword
   (year [this] (case this
                  :now (wrap (Year/now))
@@ -877,11 +874,13 @@
   ([]
    (wrap (Clock/systemDefaultZone)))
   ([x]
-   (wrap (Clock/system (zone-id x))))
+   (wrap (Clock/system @(zone-id x))))
   ([instant-or-clock zone-or-duration]
    (wrap (if (instant? instant-or-clock)
-             (Clock/fixed instant-or-clock (zone-id zone-or-duration))
-             (Clock/offset instant-or-clock (duration zone-or-duration))))))
+             (Clock/fixed (unwrap instant-or-clock)
+                          @(zone-id zone-or-duration))
+             (Clock/offset (unwrap instant-or-clock)
+                           @(duration zone-or-duration))))))
 
 (defn years
   "Create a period of given years."

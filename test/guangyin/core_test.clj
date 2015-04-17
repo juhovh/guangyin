@@ -18,6 +18,7 @@
   (is (period? @(period "P-1Y2M")))
   (is (period? @(period "-P1Y2M")))
   (is (period? @(period :zero)))
+  (is (period? @(period (period :zero))))
   (is (= (period (local-date "2015-01-01") (local-date "2017-04-12")) (period "P2Y3M11D")))
   (is (period? @(years 2)))
   (is (period? @(weeks 2)))
@@ -29,6 +30,7 @@
   (is (= (:days (period "P2Y3M1W1D")) 8)))
 
 (deftest test-duration
+  (is (duration? @(duration :zero)))
   (is (duration? @(duration "PT15M")))
   (is (duration? @(duration "PT-6H3M")))
   (is (duration? @(duration "-PT6H3M")))
@@ -120,13 +122,15 @@
 (deftest test-zoned-date-time
   (is (zoned-date-time? @(zoned-date-time :now)))
   (is (zoned-date-time? @(zoned-date-time (clock))))
+  (is (zoned-date-time? @(zoned-date-time (zoned-date-time :now))))
   (is (zoned-date-time? @(zoned-date-time (zone-id "Asia/Shanghai"))))
   (is (zoned-date-time? @(zoned-date-time "2015-04-16T12:15:00.123+03:00[Europe/Helsinki]")))
   (is (zoned-date-time? @(zoned-date-time "2015-04-16T12:15:00.123+03:00[Europe/Helsinki]" (date-time-formatter :iso-date-time))))
   (is (zoned-date-time? @(zoned-date-time (instant :now) (zone-id "Europe/Helsinki"))))
   (is (zoned-date-time? @(zoned-date-time (local-date-time :now) (zone-id "Europe/Helsinki"))))
   (is (zoned-date-time? @(zoned-date-time (local-date :now) (local-time :now) (zone-id "Europe/Helsinki"))))
-  (is (zoned-date-time? @(zoned-date-time 2015 4 16 12 15 0 123000000 (zone-id "Europe/Helsinki")))))
+  (is (zoned-date-time? @(zoned-date-time 2015 4 16 12 15 0 123000000 (zone-id "Europe/Helsinki"))))
+  (is (thrown? IllegalArgumentException (zoned-date-time :foobar))))
 
 (deftest test-year
   (is (year? @(year :now)))
@@ -134,9 +138,11 @@
   (is (year? @(year (zone-id "Asia/Shanghai"))))
   (is (year? @(year "2015")))
   (is (year? @(year "2015" (date-time-formatter "yyyy"))))
+  (is (year? @(year :min)))
   (is (year? @(year :max)))
   (is (year? @(year (local-date :now))))
-  (is (year? @(year 2015))))
+  (is (year? @(year 2015)))
+  (is (thrown? IllegalArgumentException (year :foobar))))
 
 (deftest test-year-month
   (is (year-month? @(year-month :now)))
@@ -145,7 +151,8 @@
   (is (year-month? @(year-month "2015-04")))
   (is (year-month? @(year-month "04.2015" (date-time-formatter "MM.yyyy"))))
   (is (year-month? @(year-month (local-date :now))))
-  (is (year-month? @(year-month 2015 4))))
+  (is (year-month? @(year-month 2015 4)))
+  (is (thrown? IllegalArgumentException (year-month :foobar))))
 
 (deftest test-month
   (is (month? @(month :now)))
@@ -162,7 +169,9 @@
   (is (month-day? @(month-day "--04-16")))
   (is (month-day? @(month-day "16.04." (date-time-formatter "dd.MM."))))
   (is (month-day? @(month-day (local-date :now))))
-  (is (month-day? @(month-day 4 16))))
+  (is (month-day? @(month-day (month 4) 16)))
+  (is (month-day? @(month-day 4 16)))
+  (is (thrown? IllegalArgumentException (month-day :foobar))))
 
 (deftest test-day-of-week
   (is (day-of-week? @(day-of-week :now)))
@@ -170,7 +179,30 @@
   (is (day-of-week? @(day-of-week (zone-id "Asia/Shanghai"))))
   (is (day-of-week? @(day-of-week (local-date :now))))
   (is (day-of-week? @(day-of-week :monday)))
-  (is (day-of-week? @(day-of-week :saturday))))
+  (is (day-of-week? @(day-of-week :saturday)))
+  (is (day-of-week? @(day-of-week 3)))
+  (is (= (day-of-week :wednesday) (day-of-week 3))))
+
+(deftest test-zone-id
+  (is (zone-id? @(zone-id :default)))
+  (is (zone-id? @(zone-id "America/New_York")))
+  (is (zone-id? @(zone-id (zoned-date-time :now))))
+  (is (zone-id? @(zone-id "UTC" (zone-offset 8))))
+  (is (thrown? IllegalArgumentException (zone-id :foobar))))
+
+(deftest test-zone-offset
+  (is (zone-offset? @(zone-offset "+02:00")))
+  (is (zone-offset? @(zone-offset :utc)))
+  (is (zone-offset? @(zone-offset -10)))
+  (is (zone-offset? @(zone-offset 10 30)))
+  (is (zone-offset? @(zone-offset (hours -10))))
+  (is (zone-offset? @(zone-offset (offset-time :now)))))
+
+(deftest test-clock
+  (is (clock? @(clock)))
+  (is (clock? @(clock (zone-id "Asia/Shanghai"))))
+  (is (clock? @(clock (instant :now) (zone-id "Europe/Helsinki"))))
+  (is (clock? @(clock (clock) (hours 2)))))
 
 (deftest test-plus
   (is (= @(period "P1D") @(plus (period "P1D"))))
