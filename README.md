@@ -58,7 +58,7 @@ And you can naturally always use the system time and zone:
 ```
 
 The returned objects are wrapped, but it is easy to get the Java object by
-simple dereferencing the returned object. All functions accept both wrapped and
+simply dereferencing the returned object. All functions accept both wrapped and
 Java objects as arguments.
 
 ```
