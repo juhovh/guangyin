@@ -10,7 +10,7 @@
   (print-method @obj writer))
 
 (prefer-method print-method IWrapper clojure.lang.IDeref)
-(prefer-method print-method IWrapper clojure.lang.IPersistentMap)
+(prefer-method print-method clojure.lang.IDeref clojure.lang.IPersistentMap)
 
 (defprotocol PWrappable
   (wrap [this])
