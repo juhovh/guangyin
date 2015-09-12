@@ -9,6 +9,8 @@ translates to "time is money, but money can't buy time". Whenever working with
 date and time handling it is important to have respect for time itself. Hence
 the old Chinese name for time, Guangyin.
 
+### [API documentation available here](http://juhovh.github.io/guangyin/doc/)
+
 ## Usage
 
 The most common usage is quite simple, you can parse combine and format types:
